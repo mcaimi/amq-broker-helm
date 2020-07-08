@@ -18,6 +18,6 @@ oc create configmap amq-config-files \
 Deployment is performed by rendering the template and applying all resulting manifests
 
 ```
-oc process -f amq-broker-77-custom-basic.yaml -p VOLUME_CAPACITY=10Gi -p AMQ_DATA_DIR=/opt/amq/data | oc create -f -
+oc process -f amq-broker-77-custom-persistence.yaml -p VOLUME_CAPACITY=10Gi -p AMQ_DATA_DIR=/opt/amq/data | oc create -f -
 ```
 
