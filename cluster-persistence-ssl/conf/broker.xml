@@ -6,10 +6,10 @@
       <persistence-enabled>true</persistence-enabled>
       <!-- this could be ASYNCIO, MAPPED, NIO           ASYNCIO: Linux Libaio           MAPPED: mmap files           NIO: Plain Java Files       -->
       <journal-type>NIO</journal-type>
-      <paging-directory>./data/paging</paging-directory>
-      <bindings-directory>./data/bindings</bindings-directory>
-      <journal-directory>./data/journal</journal-directory>
-      <large-messages-directory>./data/large-messages</large-messages-directory>
+      <paging-directory>${AMQ_DATA_DIR}/paging</paging-directory>
+      <bindings-directory>${AMQ_DATA_DIR}/bindings</bindings-directory>
+      <journal-directory>${AMQ_DATA_DIR}/journal</journal-directory>
+      <large-messages-directory>${AMQ_DATA_DIR}/large-messages</large-messages-directory>
       <journal-datasync>true</journal-datasync>
       <journal-min-files>2</journal-min-files>
       <journal-pool-files>10</journal-pool-files>
