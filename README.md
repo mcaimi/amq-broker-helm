@@ -60,3 +60,39 @@ AMQ_JOURNAL_TYPE            Journal type to use; aio or nio supported
                                                                        nio
 ```
 
+## SSL-ENABLED TEMPLATES
+
+In order to deploy SSL-enabled templates, a secret with valid Java Truststore and Keystore files must be created.
+To create a keystore:
+
+1. Generate a self-signed certificate for the broker keystore:
+```
+$ keytool -genkey -alias broker -keyalg RSA -keystore broker.ks
+```
+
+2. Export the certificate so that it can be shared with clients:
+```
+$ keytool -export -alias broker -keystore broker.ks -file broker_cert
+```
+
+3. Generate a self-signed certificate for the client keystore:
+```
+$ keytool -genkey -alias client -keyalg RSA -keystore client.ks
+```
+
+4. Create a client truststore that imports the broker certificate:
+```
+$ keytool -import -alias broker -keystore client.ts -file broker_cert
+```
+
+5. Export the client’s certificate from the keystore:
+```
+$ keytool -export -alias client -keystore client.ks -file client_cert
+```
+
+6. Import the client’s exported certificate into a broker SERVER truststore:
+```
+$ keytool -import -alias client -keystore broker.ts -file client_cert
+```
+
+If passwords are needed to unlock the keystore and the truststore, where applicable save these in the appropriate secret by setting the `AMQ_KEYSTORE_PASSWORD` and `AMQ_TRUSTSTORE_PASSWORD` parameters.
