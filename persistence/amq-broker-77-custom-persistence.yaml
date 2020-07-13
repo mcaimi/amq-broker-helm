@@ -146,12 +146,23 @@ objects:
             mountPath: ${AMQ_DATA_DIR}
           - name: broker-config-volume
             mountPath: /opt/amq/conf
+            #readOnly: true
+          - name: broker-config-script-custom
+            mountPath: /opt/amq/bin/configure_custom_config.sh
+            subPath: configure_custom_config.sh
             readOnly: true
         terminationGracePeriodSeconds: 60
         volumes:
           - name: broker-config-volume
             configMap:
               name: amq-config-files
+          - name: broker-config-script-custom
+            configMap:
+              name: amq-script-override-custom
+              items:
+                - key: configure_custom_config.sh
+                  path: configure_custom_config.sh
+              defaultMode: 0550
     volumeClaimTemplates:
     - apiVersion: v1
       kind: PersistentVolumeClaim

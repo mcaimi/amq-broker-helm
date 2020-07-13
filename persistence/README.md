@@ -15,6 +15,13 @@ oc create configmap amq-config-files \
     --from-file=jgroups-ping.xml=conf/jgroups-ping.xml
 ```
 
+Also, due to a problem with custom broker.xml and the `AMQ_DATA_DIR` parameter, a custom config script needs to be overridden:
+
+```
+oc create configmap amq-script-override-custom \
+    --from-file=configure_custom_config.sh=scripts-override/configure_custom_config.sh
+```
+
 Deployment is performed by rendering the template and applying all resulting manifests
 
 ```
