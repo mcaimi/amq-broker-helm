@@ -6,14 +6,20 @@ DISABLER_TAG="<!-- Remove this tag to enable custom configuration -->"
 
 declare -a CONFIG_FILES=("BROKER_XML" "LOGGING_PROPERTIES")
 
-function swapVars() { 
-  sed -i "s/\${BROKER_IP}/$BROKER_IP/g" $1
-  sed -i "s/\${AMQ_NAME}/$AMQ_NAME/g" $1
-  sed -i "s/\${AMQ_ROLE}/$AMQ_ROLE/g" $1
-  sed -i "s#\${AMQ_DATA_DIR}#$AMQ_DATA_DIR#g" $1 # do not use '/' as expression delimiter
-  sed -i "s/\${AMQ_STORAGE_USAGE_LIMIT}/$AMQ_STORAGE_USAGE_LIMIT/g" $1
-  sed -i "s/\${AMQ_CLUSTER_USER}/$AMQ_CLUSTER_USER/g" $1
-  sed -i "s/\${AMQ_CLUSTER_PASSWORD}/$AMQ_CLUSTER_PASSWORD/g" $1
+function swapVars() {
+  declare -a SUPPORTED_VARIABLES
+
+  while IFS= read -r line ; do
+    while [[ "$line" =~ (\$\{[a-zA-Z_0-9][a-zA-Z_0-9]*\}) ]] ; do
+      LHS=${BASH_REMATCH[1]}
+      SUPPORTED_VARIABLES+=("$LHS")
+      line=${line//$LHS//} #endloop
+    done
+  done < $1
+
+  for var in "${SUPPORTED_VARIABLES[@]}"; do
+    sed -i "s#$var#$(eval echo \"$var\")#g" $1
+  done
 }
 
 for config_file in ${CONFIG_FILES[@]};
