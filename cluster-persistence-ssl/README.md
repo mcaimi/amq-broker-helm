@@ -36,6 +36,13 @@ oc create secret generic amq-ssl-secret \
     --from-file=broker.ts=conf/broker.ts
 ```
 
+Also, due to a problem with custom broker.xml and the `AMQ_DATA_DIR` parameter, a custom config script needs to be overridden:
+
+```
+oc create configmap amq-script-override-custom \
+    --from-file=configure_custom_config.sh=scripts-override/configure_custom_config.sh
+```
+
 Deployment is performed by rendering the template and applying all resulting manifests
 
 ```
