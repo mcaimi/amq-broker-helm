@@ -14,10 +14,9 @@ function swapVars() {
   do
     SUBSTITUTIONS[$SUBVAR]=1
   done < <( awk '{
-      for(i=1; i<=NF; ++i) {
-        if( match($i, /(\$\{[a-zA-Z_0-9][a-zA-Z_0-9]*\})/) ) {
-          print substr($i, RSTART, RLENGTH)
-        }
+    while( match($0, /\$\{[a-zA-Z_0-9][a-zA-Z_0-9]*\}/) ) {
+      print substr($0, RSTART, RLENGTH)
+      sub(/\$\{[a-zA-Z_0-9][a-zA-Z_0-9]*\}/, "matched", $0)
     }
   }' $1 )
 
