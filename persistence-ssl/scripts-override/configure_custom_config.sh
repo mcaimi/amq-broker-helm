@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 set -e
 
 INSTANCE_DIR=$1
@@ -7,17 +7,23 @@ DISABLER_TAG="<!-- Remove this tag to enable custom configuration -->"
 declare -a CONFIG_FILES=("BROKER_XML" "LOGGING_PROPERTIES")
 
 function swapVars() {
-  declare -a SUPPORTED_VARIABLES
+  # Requires bash v4+
+  declare -A SUBSTITUTIONS
 
-  while IFS= read -r line ; do
-    while [[ "$line" =~ (\$\{[a-zA-Z_0-9][a-zA-Z_0-9]*\}) ]] ; do
-      LHS=${BASH_REMATCH[1]}
-      SUPPORTED_VARIABLES+=("$LHS")
-      line=${line//$LHS//} #endloop
-    done
-  done < $1
+  while read -r SUBVAR
+  do
+    SUBSTITUTIONS[$SUBVAR]=1
+  done < <( awk '{
+      for(i=1; i<=NF; ++i) {
+        if( match($i, /(\$\{[a-zA-Z_0-9][a-zA-Z_0-9]*\})/) ) {
+          print substr($i, RSTART, RLENGTH)
+        }
+    }
+  }' $1 )
 
-  for var in "${SUPPORTED_VARIABLES[@]}"; do
+  echo "Found placeholder variables: \"${!SUBSTITUTIONS[@]}\". Customizing configuration.."
+
+  for var in "${!SUBSTITUTIONS[@]}"; do
     sed -i "s#$var#$(eval echo \"$var\")#g" $1
   done
 }
