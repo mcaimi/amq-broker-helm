@@ -11,6 +11,13 @@ oc create configmap amq-config-files \
     --from-file=jgroups-ping.xml=conf/jgroups-ping.xml
 ```
 
+In the case you want to add new parameters/env variables to the template that need to be rendered inside configuration files (`broker.xml` for example), this override script needs to be injected inside the container image:
+
+```
+oc create configmap amq-script-override-custom \
+    --from-file=configure_custom_config.sh=scripts-override/configure_custom_config.sh
+```
+
 Deployment is performed by rendering the template and applying all resulting manifests
 
 ```

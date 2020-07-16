@@ -173,11 +173,22 @@ objects:
             name: artemis
             protocol: TCP
           volumeMounts:
+            - name: broker-config-script-custom
+              mountPath: /opt/amq/bin/configure_custom_config.sh
+              subPath: configure_custom_config.sh
+              readOnly: true
             - name: broker-config-volume
               mountPath: "/opt/amq/conf"
               readOnly: true
         terminationGracePeriodSeconds: 60
         volumes:
+          - name: broker-config-script-custom
+            configMap:
+              name: amq-script-override-custom
+              items:
+                - key: configure_custom_config.sh
+                  path: configure_custom_config.sh
+              defaultMode: 0550
           - name: broker-config-volume
             configMap:
               name: amq-config-files
