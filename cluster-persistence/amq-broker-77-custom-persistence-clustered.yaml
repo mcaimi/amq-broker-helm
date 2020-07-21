@@ -128,7 +128,7 @@ objects:
       port: 61616
       protocol: TCP
       targetPort: 61616
-      nodePort: ${AMQ_NODE_PORT}
+      nodePort: ${{AMQ_NODE_PORT}}
     publishNotReadyAddresses: true
     selector:
       application: ${APPLICATION_NAME}
@@ -514,5 +514,6 @@ parameters:
   value: nio
   required: false
 - description: The TCP port on the host to use as a NodePort to expose the AMQ Broker running inside OCP
-  displayName: AMQ_NODE_PORT
+  displayName: AMQ Node Port
+  name: AMQ_NODE_PORT
   required: true

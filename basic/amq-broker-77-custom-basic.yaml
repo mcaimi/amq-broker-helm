@@ -103,7 +103,7 @@ objects:
       port: 61616
       protocol: TCP
       targetPort: 61616
-      nodePort: ${AMQ_NODE_PORT}
+      nodePort: ${{AMQ_NODE_PORT}}
     publishNotReadyAddresses: true
     selector:
       application: ${APPLICATION_NAME}
