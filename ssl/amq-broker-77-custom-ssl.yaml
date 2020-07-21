@@ -155,6 +155,24 @@ objects:
     selector:
       deploymentConfig: ${APPLICATION_NAME}-amq
 - apiVersion: v1
+  kind: Service
+  metadata:
+    labels:
+      application: ${APPLICATION_NAME}
+    name: ${APPLICATION_NAME}-nodeport-svc-ssl
+  spec:
+    ports:
+    - name: all-ssl
+      port: 61617
+      protocol: TCP
+      targetPort: 61617
+      nodePort: ${AMQ_NODE_PORT}
+    publishNotReadyAddresses: true
+    selector:
+      application: ${APPLICATION_NAME}
+    sessionAffinity: None
+    type: NodePort
+- apiVersion: v1
   kind: DeploymentConfig
   metadata:
     labels:
@@ -375,3 +393,6 @@ parameters:
   name: AMQ_JOURNAL_TYPE
   value: nio
   required: false
+- description: The TCP port on the host to use as a NodePort to expose the AMQ Broker running inside OCP
+  displayName: AMQ_NODE_PORT
+  required: true

@@ -54,6 +54,24 @@ objects:
     selector:
       deploymentConfig: ${APPLICATION_NAME}-amq
     type: ClusterIP
+- apiVersion: v1
+  kind: Service
+  metadata:
+    labels:
+      application: ${APPLICATION_NAME}
+    name: ${APPLICATION_NAME}-nodeport-svc
+  spec:
+    ports:
+    - name: all
+      port: 61616
+      protocol: TCP
+      targetPort: 61616
+      nodePort: ${AMQ_NODE_PORT}
+    publishNotReadyAddresses: true
+    selector:
+      application: ${APPLICATION_NAME}
+    sessionAffinity: None
+    type: NodePort
 - apiVersion: apps/v1
   kind: StatefulSet
   metadata:
@@ -264,3 +282,6 @@ parameters:
   name: AMQ_JOURNAL_TYPE
   value: nio
   required: false
+- description: The TCP port on the host to use as a NodePort to expose the AMQ Broker running inside OCP
+  displayName: AMQ_NODE_PORT
+  required: true
