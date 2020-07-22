@@ -368,11 +368,13 @@ parameters:
 - description: Anycast prefix applied to the multiplexed protocol ports 61616 and 61617
   displayName: AMQ Anycast Prefix
   name: AMQ_ANYCAST_PREFIX
-  required: false
+  required: true
+  value: "jms.queue."
 - description: Multicast prefix applied to the multiplexed protocol ports 61616 and 61617
   displayName: AMQ Multicast Prefix
   name: AMQ_MULTICAST_PREFIX
-  required: false
+  required: true
+  value: "jms.topic."
 - description: Namespace in which the ImageStreams for Red Hat Middleware images are installed. These ImageStreams are normally installed in the openshift namespace. You should only need to modify this if you've installed the ImageStreams in a different namespace/project.
   displayName: ImageStream Namespace
   name: IMAGE_STREAM_NAMESPACE

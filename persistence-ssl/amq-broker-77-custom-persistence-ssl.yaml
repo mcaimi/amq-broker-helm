@@ -339,11 +339,13 @@ parameters:
 - description: Anycast prefix applied to the multiplexed protocol ports 61616 and 61617
   displayName: AMQ Anycast Prefix
   name: AMQ_ANYCAST_PREFIX
-  required: false
+  required: true
+  value: "jms.queue."
 - description: Multicast prefix applied to the multiplexed protocol ports 61616 and 61617
   displayName: AMQ Multicast Prefix
   name: AMQ_MULTICAST_PREFIX
-  required: false
+  required: true
+  value: "jms.topic."
 - description: Broker Image
   displayName: Image
   name: IMAGE
