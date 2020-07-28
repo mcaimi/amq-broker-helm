@@ -1,0 +1,78 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    description: The broker's console and Jolokia port.
+  labels:
+    application: {{ .Values.application.name }}
+  name: {{ tpl .Values.templates.service . }}-jolokia
+spec:
+  ports:
+  - port: {{ .Values.service.jolokia_port }}
+    targetPort: {{ .Values.service.jolokia_port }}
+  selector:
+    deploymentConfig: {{ tpl .Values.templates.deployment . }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    description: The broker's AMQP port.
+  labels:
+    application: {{ .Values.application.name }}
+  name: {{ tpl .Values.templates.service . }}-amqp
+spec:
+  ports:
+  - port: {{ .Values.service.amqp_port }}
+    targetPort: {{ .Values.service.amqp_port }}
+  selector:
+    deploymentConfig: {{ tpl .Values.templates.deployment . }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    description: The broker's MQTT port.
+  labels:
+    application: {{ .Values.application.name }}
+  name: {{ tpl .Values.templates.service . }}-mqtt
+spec:
+  ports:
+  - port: {{ .Values.service.mqtt_port }}
+    targetPort: {{ .Values.service.mqtt_port }}
+  selector:
+    deploymentConfig: {{ tpl .Values.templates.deployment . }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    description: The broker's STOMP port.
+  labels:
+    application: {{ .Values.application.name }}
+  name: {{ tpl .Values.templates.service . }}-stomp
+spec:
+  ports:
+  - port: {{ .Values.service.stomp_port }}
+    targetPort: {{ .Values.service.stomp_port }}
+  selector:
+    deploymentConfig: {{ tpl .Values.templates.deployment . }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    description: The broker's OpenWire port.
+    service.alpha.openshift.io/dependencies: '[{"name": "{{ tpl .Values.templates.service . }}-amqp",
+      "kind": "Service"},{"name": "{{ tpl .Values.templates.service . }}-mqtt", "kind": "Service"},{"name":
+      "{{ tpl .Values.templates.service . }}-stomp", "kind": "Service"}]'
+  labels:
+    application: {{ .Values.application.name }}
+  name: {{ tpl .Values.templates.service . }}-tcp
+spec:
+  ports:
+  - port: {{ .Values.service.tcp_port }}
+    targetPort: {{ .Values.service.tcp_port }}
+  selector:
+    deploymentConfig: {{ tpl .Values.templates.deployment . }}

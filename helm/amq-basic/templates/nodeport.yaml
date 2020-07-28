@@ -1,0 +1,18 @@
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    application: {{ .Values.application.name }}
+  name: artemis-nodeport-svc
+spec:
+  ports:
+  - name: artemis-0
+    port: 61616
+    protocol: TCP
+    targetPort: 61616
+    nodePort: {{ .Values.application.nodePort }}
+  publishNotReadyAddresses: true
+  selector:
+    application: {{ .Values.application.name }}
+  sessionAffinity: None
+  type: NodePort
