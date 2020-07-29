@@ -19,7 +19,9 @@ Development is also starting to convert all those templates to Helm Charts: char
 
 Avaliable Helm Charts | Repo Link
 --------------------- | ---------
-Basic Helm Chart | [amq-basic](https://github.com/mcaimi/amq-custom-templates-openshift/tree/master/helm/amq-basic)
+Basic Broker | [amq-basic](https://github.com/mcaimi/amq-custom-templates-openshift/tree/master/helm/amq-basic)
+Basic Broker With SSL | [amq-ssl](https://github.com/mcaimi/amq-custom-templates-openshift/tree/master/helm/ssl)
+Basic Broker With Persistence | [amq-persistence](https://github.com/mcaimi/amq-custom-templates-openshift/tree/master/helm/persistence)
 
 For any of the OpenShift templates, the list of available parameters can be retrieved by running:
 
