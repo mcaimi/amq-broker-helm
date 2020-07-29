@@ -1,56 +1,55 @@
-# BASIC BROKER HELM CHART, SSL ENABLED
+# SSL-ENABLED BROKER HELM CHART
 
-This chart will deploy an SSL-enabled basic broker with no disk-backed persistence.
+This chart will deploy a basic ssl-enabled broker with no persistence.
 
 ## INSTALLATION
 
 The most basic deployment can be performed by following these steps:
 
+- Create (or import) a keystore/truststore pair for this broker: look [here](https://github.com/mcaimi/amq-custom-templates-openshift/blob/master/README.md) for an howto. Put the files under `tls/` and update the tls section in `values.yaml`:
+
+```
+tls:
+  keystore: keystore.ks
+  truststore: keystore.ts
+  keystore_password: kspwd
+  truststore_password: tspwd
+```
+
 - Customize the application name in `values.yaml`:
 
 ```
 application:
-  name: amq-broker-basic
+  name: amq-broker-basic-ssl
   rolloutTrigger: ConfigChange
   [...]
 ```
 
 the application name will be used as a prefix for most of the objects deployed by the Chart itself.
 
-- Create a Kubernetes Secret with the default admin username and password
+- Update the Admin user name and password in `values.yaml`
 
 ```
-$ oc create secret generic amq-broker-basic-secret
-        --from-literal=AMQ_USER=admin \
-        --from-literal=AMQ_PASSWORD=password
+admin:
+  user: admin
+  password: password
+  role: admin
 ``` 
-Be aware that the name of the secret must be equal to "<application name>-secret" for the chart to pick it up.
 
-- Choose a node port TCP value for the external service:
+- Choose a node port TCP value and corresponding service for the external service in `values.yaml`:
 
 ```
-application:
-  [...]
-  nodePort: 30001
-  [...]
+nodeport:
+  port: 30001
+  service: multiplex-ssl
 ```
 this port needs to be in the allowed NodePort range set up in the kubelet (typically in the range 30000-32768)
 
 - Install the Chart under your preferred project
 
 ```
-$ oc new-project amq-demo
-$ helm install amq-basic .
-NAME: amq-basic
-LAST DEPLOYED: Tue Jul 28 11:16:10 2020
-NAMESPACE: amq-demo
-STATUS: deployed
-REVISION: 1
-TEST SUITE: None
-$ helm list
-NAME            NAMESPACE       REVISION        UPDATED                                         STATUS          CHART                                   APP VERSION
-amq-basic       amq-demo        1               2020-07-28 11:16:10.373612234 +0200 CEST        deployed        AMQ Broker Basic deployment Chart-1.0
-
+$ oc new-project amq-demo-ssl
+$ helm install amq-basic-ssl .
 ```
 
 After a while, the broker should be up and running:
@@ -81,13 +80,10 @@ route.route.openshift.io/amq-broker-basic-route-console   amq-broker-basic-route
 
 ## ADDING QUEUES, USERS AND ROLES
 
-To add users to the broker edit the `users` section in `values.yaml`. For example, this setup here:
+To add multiple users to the broker edit the `users` section in `values.yaml`. For example, this setup here:
 
 ```
 users:
-  - name: admin
-    password: "password"
-    role: admin
   - name: demouser
     password: "demo"
     role: user
@@ -102,7 +98,11 @@ would be rendered by the Helm Chart into these two files:
 
 ```
     ## CUSTOMCONFIG
+    
+    # ADMIN USER
     admin = password
+    
+    # ADDITIONAL USERS
     demouser = demo
     anotheruser = demo1
 ```
@@ -111,7 +111,10 @@ would be rendered by the Helm Chart into these two files:
 
 ```
     ## CUSTOMCONFIG
+    # ADMIN ROLE MAPPING
     admin = admin
+
+    # ADDITIONAL ROLE MAPPING
     user = demouser
     user = anotheruser
 ```
