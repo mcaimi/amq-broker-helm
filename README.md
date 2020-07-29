@@ -15,13 +15,14 @@ AMQ Broker with Storage Persistence and SSL | [PERSISTENCE-SSL](https://github.c
 Clustered AMQ Broker with Persistence | [CLUSTER-PERSISTENCE](https://github.com/mcaimi/amq-custom-templates-openshift/tree/master/cluster-persistence)
 Clustered AMQ Broker with Persistence and SSL | [CLUSTER-PERSISTENCE-SSL](https://github.com/mcaimi/amq-custom-templates-openshift/tree/master/cluster-persistence-ssl)
 
-Development is also starting to convert all those templates to Helm Charts: charts will be added when conversion is finished.
+Development is also underway to convert all those templates to Helm Charts: charts will be added when conversion is finished.
 
 Avaliable Helm Charts | Repo Link
 --------------------- | ---------
 Basic Broker | [amq-basic](https://github.com/mcaimi/amq-custom-templates-openshift/tree/master/helm/amq-basic)
 Basic Broker With SSL | [amq-ssl](https://github.com/mcaimi/amq-custom-templates-openshift/tree/master/helm/ssl)
 Basic Broker With Persistence | [amq-persistence](https://github.com/mcaimi/amq-custom-templates-openshift/tree/master/helm/persistence)
+Basic Broker With Persistence and SSL | [amq-persistence-ssl](https://github.com/mcaimi/amq-custom-templates-openshift/tree/master/helm/persistence-ssl)
 
 For any of the OpenShift templates, the list of available parameters can be retrieved by running:
 
