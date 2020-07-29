@@ -1,0 +1,14 @@
+apiVersion: v2
+name: AMQ Broker Basic deployment Chart
+version: 1.0
+description: An Heml Chart that deploys a Basic AMQ Broker (NO PERSISTENCE, NO SSL)
+type: application
+keywords:
+  - activemq
+  - artemismq
+  - amq-broker
+home: https://access.redhat.com/products/red-hat-amq/
+sources:
+  - https://github.com/mcaimi/amq-custom-templates-openshift
+maintaners:
+  - url: https://github.com/mcaimi
