@@ -15,7 +15,13 @@ AMQ Broker with Storage Persistence and SSL | [PERSISTENCE-SSL](https://github.c
 Clustered AMQ Broker with Persistence | [CLUSTER-PERSISTENCE](https://github.com/mcaimi/amq-custom-templates-openshift/tree/master/cluster-persistence)
 Clustered AMQ Broker with Persistence and SSL | [CLUSTER-PERSISTENCE-SSL](https://github.com/mcaimi/amq-custom-templates-openshift/tree/master/cluster-persistence-ssl)
 
-For any of the templates, the list of available parameters can be retrieved by running:
+Development is also starting to convert all those templates to Helm Charts: charts will be added when conversion is finished.
+
+Avaliable Helm Charts | Repo Link
+--------------------- | ---------
+Basic Helm Chart | [amq-basic](https://github.com/mcaimi/amq-custom-templates-openshift/tree/master/helm/amq-basic)
+
+For any of the OpenShift templates, the list of available parameters can be retrieved by running:
 
 ```
 oc process --parameters -f <template_file_name>.yaml
@@ -62,7 +68,7 @@ AMQ_JOURNAL_TYPE            Journal type to use; aio or nio supported
 
 ## SSL-ENABLED TEMPLATES
 
-In order to deploy SSL-enabled templates, a secret with valid Java Truststore and Keystore files must be created.
+In order to deploy SSL-enabled templates, a secret with valid Java Truststore and Keystore files must be created. This is true for both the Openshift Templates and Helm Charts.
 To create a keystore:
 
 1. Generate a self-signed certificate for the broker keystore:
