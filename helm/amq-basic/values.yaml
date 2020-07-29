@@ -4,7 +4,6 @@ application:
   amq_broker_version: 7.7
   amq_broker_image: registry.redhat.io/amq7/amq-broker
   pullPolicy: IfNotPresent
-  nodePort: 30000
 
 service:
   - name: jolokia
@@ -29,7 +28,7 @@ service:
     port: 61616
   
 nodeport:
-  port: 30001
+  port: 30000
   service: multiplex
 
 parameters:
@@ -54,10 +53,12 @@ templates:
   config_cm: "{{ .Values.application.name }}-config-cm"
   app_secret: "{{ .Values.application.name }}-secret"
 
+admin:
+  user: admin
+  password: password
+  role: admin
+
 users:
-  - name: admin
-    password: "password"
-    role: admin
   - name: demouser
     password: "demo"
     role: user

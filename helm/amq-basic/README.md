@@ -17,22 +17,21 @@ application:
 
 the application name will be used as a prefix for most of the objects deployed by the Chart itself.
 
-- Create a Kubernetes Secret with the default admin username and password
+- Update the Admin user name and password in `values.yaml`
 
 ```
-$ oc create secret generic amq-broker-basic-secret
-        --from-literal=AMQ_USER=admin \
-        --from-literal=AMQ_PASSWORD=password
+admin:
+  user: admin
+  password: password
+  role: admin
 ``` 
-Be aware that the name of the secret must be equal to "<application name>-secret" for the chart to pick it up.
 
-- Choose a node port TCP value for the external service:
+- Choose a node port TCP value and corresponding service for the external service in `values.yaml`:
 
 ```
-application:
-  [...]
-  nodePort: 30001
-  [...]
+nodeport:
+  port: 30000
+  service: multiplex
 ```
 this port needs to be in the allowed NodePort range set up in the kubelet (typically in the range 30000-32768)
 
@@ -81,13 +80,10 @@ route.route.openshift.io/amq-broker-basic-route-console   amq-broker-basic-route
 
 ## ADDING QUEUES, USERS AND ROLES
 
-To add users to the broker edit the `users` section in `values.yaml`. For example, this setup here:
+To add multiple users to the broker edit the `users` section in `values.yaml`. For example, this setup here:
 
 ```
 users:
-  - name: admin
-    password: "password"
-    role: admin
   - name: demouser
     password: "demo"
     role: user
@@ -102,7 +98,11 @@ would be rendered by the Helm Chart into these two files:
 
 ```
     ## CUSTOMCONFIG
+    
+    # ADMIN USER
     admin = password
+    
+    # ADDITIONAL USERS
     demouser = demo
     anotheruser = demo1
 ```
@@ -111,7 +111,10 @@ would be rendered by the Helm Chart into these two files:
 
 ```
     ## CUSTOMCONFIG
+    # ADMIN ROLE MAPPING
     admin = admin
+
+    # ADDITIONAL ROLE MAPPING
     user = demouser
     user = anotheruser
 ```
