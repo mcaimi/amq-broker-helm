@@ -7,11 +7,30 @@ application:
   nodePort: 30000
 
 service:
-  jolokia_port: 8161
-  amqp_port: 5672
-  mqtt_port: 1883
-  stomp_port: 61613
-  tcp_port: 61616
+  - name: jolokia
+    description: "The Jolokia Management Console Service"
+    protocol: TCP
+    port: 8161
+  - name: amqp
+    description: "Plain AMQP protocol service endpoint"
+    protocol: TCP
+    port: 5672
+  - name: mqtt
+    description: "Plain MQTT protocol service endpoint"
+    protocol: TCP
+    port: 1883
+  - name: stomp
+    description: "Plain STOMP protocol service endpoint"
+    protocol: TCP
+    port: 61613
+  - name: multiplex
+    description: "Multiplexed protocol endpoint (CORE+All the others)"
+    protocol: TCP
+    port: 61616
+  
+nodeport:
+  port: 30001
+  service: multiplex
 
 parameters:
   amq_protocols: "openwire,amq,stomp,mqtt,hornetq,core"
