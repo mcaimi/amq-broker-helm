@@ -1,0 +1,114 @@
+application:
+  name: amq-broker-persistence-ssl
+  rolloutTrigger: ConfigChange
+  amq_broker_version: 7.7
+  amq_broker_image: registry.redhat.io/amq7/amq-broker
+  pullPolicy: IfNotPresent
+  volume_capacity: "1G"
+
+service:
+  - name: jolokia
+    description: "The Jolokia Management Console Service"
+    protocol: TCP
+    port: 8161
+  - name: amqp
+    description: "Plain AMQP protocol service endpoint"
+    protocol: TCP
+    port: 5672
+  - name: mqtt
+    description: "Plain MQTT protocol service endpoint"
+    protocol: TCP
+    port: 1883
+  - name: stomp
+    description: "Plain STOMP protocol service endpoint"
+    protocol: TCP
+    port: 61613
+  - name: multiplex
+    description: "Multiplexed protocol endpoint (CORE+All the others)"
+    protocol: TCP
+    port: 61616
+  - name: amqp-ssl
+    description: "AMQP SSL Service Endpoint"
+    protocol: TCP
+    port: 5671
+  - name: mqtt-ssl
+    description: "MQTT SSL Service Endpoint"
+    protocol: TCP
+    port: 8883
+  - name: stomp-ssl
+    description: "STOMP SSL Service Endpoint"
+    protocol: TCP
+    port: 61612
+  - name: multiplex-ssl
+    protocol: TCP
+    description: "Multiplexed SSL protocol endpoint (CORE+All the others)"
+    port: 61617
+
+nodeport:
+  port: 30003
+  service: multiplex-ssl
+
+tls:
+  keystore: keystore.ks
+  truststore: keystore.ts
+  keystore_password: kspwd
+  truststore_password: tspwd
+
+parameters:
+  amq_protocols: "openwire,amq,stomp,mqtt,hornetq,core"
+  amq_admin_role: "admin"
+  amq_broker_name: "broker"
+  amq_global_max_size: "100 gb"
+  amq_require_login: False
+  amq_extra_args: ""
+  amq_anycast_prefix: "jmx.queue."
+  amq_multicast_prefix: "jmx.topic."
+  imagestream_namespace: "openshift"
+  amq_enable_metrics_plugin: False
+  amq_journal_type: "nio"
+  ssl_provider: "jdk" # alternative is openssl
+  amq_data_dir: "/opt/amq/data"
+
+templates:
+  service: "{{ .Values.application.name }}-svc"
+  deployment: "{{ .Values.application.name }}-dc"
+  route: "{{ .Values.application.name }}-route"
+  broker_image: "{{ .Values.application.amq_broker_image }}:{{ .Values.application.amq_broker_version }}"
+  override_cm: "{{ .Values.application.name }}-override-cm"
+  config_cm: "{{ .Values.application.name }}-config-cm"
+  app_secret: "{{ .Values.application.name }}-secret"
+  app_certificates: "{{ .Values.application.name }}-certificates"
+  pvc_name: "{{ .Values.application.name }}-persistent-volume"
+
+admin:
+  user: admin
+  password: password
+  role: admin
+
+users:
+  - name: demouser
+    password: "demo"
+    role: user
+  - name: anotheruser
+    password: "demo1"
+    role: user
+
+queues:
+  - name: demoQueue
+    permissions:
+      - grant: consume
+        roles:
+          - admin
+          - user
+      - grant: browse
+        roles:
+          - admin
+          - user
+      - grant: send
+        roles:
+          - admin
+          - user
+      - grant: manage
+        roles:
+          - admin
+

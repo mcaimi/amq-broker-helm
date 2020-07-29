@@ -1,0 +1,24 @@
+{{- $np_svc := .Values.nodeport }}
+{{- range .Values.service }}
+{{- if eq .name $np_svc.service }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    application: {{ $.Values.application.name }}
+  name: {{ $.Values.application.name }}-nodeport-svc
+spec:
+  ports:
+  - name: {{ quote .name }}
+    port: {{ .port }}
+    protocol: {{ quote .protocol }}
+    targetPort: {{ .port }}
+    nodePort: {{ $np_svc.port }}
+  publishNotReadyAddresses: true
+  selector:
+    application: {{ $.Values.application.name }}
+  sessionAffinity: None
+  type: NodePort
+{{- end }}
+{{- end }}
