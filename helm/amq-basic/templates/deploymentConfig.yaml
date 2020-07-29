@@ -67,21 +67,11 @@ spec:
             - "/opt/amq/bin/readinessProbe.sh"
         name: {{ tpl .Values.templates.deployment . }}
         ports:
-        - containerPort: 8161
-          name: console-jolokia
-          protocol: TCP
-        - containerPort: 5672
-          name: amqp
-          protocol: TCP
-        - containerPort: 1883
-          name: mqtt
-          protocol: TCP
-        - containerPort: 61613
-          name: stomp
-          protocol: TCP
-        - containerPort: 61616
-          name: artemis
-          protocol: TCP
+        {{- range .Values.service }}
+        - containerPort: {{ .port }}
+          name: {{ .name }}
+          protocol: {{ .protocol }}
+        {{- end }}
         volumeMounts:
           - name: broker-config-script-custom
             mountPath: /opt/amq/bin/configure_custom_config.sh
