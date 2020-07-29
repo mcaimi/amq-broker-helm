@@ -1,0 +1,21 @@
+{{- $application_name := .Values.application.name }}
+{{- $svc_name := tpl .Values.templates.service . }}
+{{- $dc_name := tpl .Values.templates.deployment . }}
+
+{{- range .Values.service }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    description: {{ .description }}
+  labels:
+    application: {{ $application_name }}
+  name: {{ $svc_name }}-{{ .name }}
+spec:
+  ports:
+  - port: {{ .port }}
+    targetPort: {{ .port }}
+  selector:
+    deploymentConfig: {{ $dc_name }}
+{{- end }}
