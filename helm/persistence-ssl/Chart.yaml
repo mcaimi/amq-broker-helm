@@ -1,7 +1,7 @@
 apiVersion: v2
-name: AMQ Broker Basic SSL deployment Chart
+name: AMQ Broker SSL deployment Chart with disk persistence
 version: 1.0
-description: An Heml Chart that deploys a Basic AMQ Broker with SSL (NO PERSISTENCE)
+description: An Heml Chart that deploys a Basic AMQ Broker with SSL and persistence
 type: application
 keywords:
   - activemq
