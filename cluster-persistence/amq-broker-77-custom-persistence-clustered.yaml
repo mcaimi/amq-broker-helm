@@ -281,10 +281,6 @@ objects:
     selector:
       matchLabels:
         app: ${APPLICATION_NAME}-amq
-    strategy:
-      rollingParams:
-        maxSurge: 0
-      type: Rolling
     serviceName: ${AMQ_NAME}-amq-headless
     template:
       metadata:
@@ -358,7 +354,7 @@ objects:
             value: ${AMQ_JOURNAL_TYPE}
           - name: BROKER_XML
             valueFrom:
-              configMapRefKey:
+              configMapKeyRef:
                 name: ${AMQ_CONFIG_FILES}
                 key: broker.xml
           readinessProbe:
@@ -418,8 +414,6 @@ objects:
         resources:
           requests:
             storage: ${VOLUME_CAPACITY}
-    triggers:
-    - type: ConfigChange
 parameters:
 - description: The name for the application.
   displayName: Application Name
