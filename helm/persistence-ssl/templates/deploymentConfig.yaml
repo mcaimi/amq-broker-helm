@@ -126,16 +126,8 @@ spec:
         - name: broker-config-volume
           configMap:
             name: {{ tpl .Values.templates.config_cm . }}
-    volumeClaimTemplates:
-    - apiVersion: v1
-      kind: PersistentVolumeClaim
-      metadata:
-        name: {{ tpl .Values.templates.pvc_name . }}
-      spec:
-        accessModes:
-          - "ReadWriteOnce"
-        resources:
-          requests:
-            storage: {{ .Values.application.volume_capacity }}
+        - name: {{ tpl .Values.templates.pvc_name . }}
+          persistentVolumeClaim:
+            claimName: {{ tpl .Values.templates.pvc_name . }}
   triggers:
   - type: {{ .Values.application.rolloutTrigger }}
