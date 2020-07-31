@@ -142,10 +142,6 @@ spec:
   selector:
     matchLabels:
       app: {{ .Values.application.name }}
-  strategy:
-    rollingParams:
-      maxSurge: 0
-    type: Rolling
   serviceName: {{ tpl .Values.templates.service . }}
   template:
     metadata:
@@ -186,9 +182,9 @@ spec:
         - name: AMQ_DATA_DIR_LOGGING
           value: "{{ .Values.parameters.amq_data_dir_logging }}"
         - name: AMQ_CLUSTERED
-          value: {{ .Values.parameters.amq_clustered }}
+          value: "{{ .Values.parameters.amq_clustered }}"
         - name: AMQ_REPLICAS
-          value: {{ .Values.application.replicas }}
+          value: "{{ .Values.application.replicas }}"
         - name: AMQ_CLUSTER_USER
           valueFrom:
             secretKeyRef:
@@ -215,7 +211,7 @@ spec:
           value: "{{ .Values.parameters.amq_journal_type }}"
         - name: BROKER_XML
           valueFrom:
-            configMapRefKey:
+            configMapKeyRef:
               name: {{ tpl .Values.templates.config_cm . }}
               key: broker.xml
         readinessProbe:
@@ -266,16 +262,6 @@ spec:
               - key: drain.sh
                 path: drain.sh
             defaultMode: 0550
-  volumeClaimTemplates:
-  - apiVersion: v1
-    kind: PersistentVolumeClaim
-    metadata:
-      name: {{ tpl .Values.templates.pvc_name . }}
-    spec:
-      accessModes:
-        - "ReadWriteOnce"
-      resources:
-        requests:
-          storage: {{ .Values.application.volume_capacity }}
-  triggers:
-  - type: {{ .Values.application.rolloutTrigger }}
+        - name: {{ tpl .Values.templates.pvc_name . }}
+          persistentVolumeClaim:
+            claimName: {{ tpl .Values.templates.pvc_name . }}
