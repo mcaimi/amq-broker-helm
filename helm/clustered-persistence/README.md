@@ -1,6 +1,7 @@
-# BASIC BROKER HELM CHART WITH DISK PERSISTENCE
+# CLUSTERED BROKER HELM CHART WITH DISK PERSISTENCE
 
-This chart will deploy a basic broker with disk persistence and no SSL endpoint.
+This chart will deploy a clustered broker with disk persistence and no SSL endpoint.
+*This is still heavily in development, it is definitely not ready to be used in a production environment*
 
 ## INSTALLATION
 
@@ -14,6 +15,12 @@ application:
   rolloutTrigger: ConfigChange
   [...]
   volume_capacity: "1G"
+  replicas: 2
+
+[...]
+parameters:
+  [...]
+  amq_clustered: True
 ```
 
 ```
@@ -25,12 +32,14 @@ parameters:
 
 the application name will be used as a prefix for most of the objects deployed by the Chart itself.
 
-- Update the Admin user name and password in `values.yaml`
+- Update the Admin user name and password in `values.yaml`, and also the cluster user credentials:
 
 ```
 admin:
   user: admin
   password: password
+  cluster_user: cluster_admin
+  cluster_password: cluster_password
   role: admin
 ``` 
 
@@ -43,37 +52,19 @@ nodeport:
 ```
 this port needs to be in the allowed NodePort range set up in the kubelet (typically in the range 30000-32768)
 
+- Configure the JGroups ping service for the cluster in `values.yaml`
+
+```
+ping_service:
+  name: "{{ .Values.application.name }}-ping-svc"
+  port: 8888
+```
+
 - Install the Chart under your preferred project
 
 ```
-$ oc new-project amq-persistence
-$ helm install amq-persistence .
-```
-
-After a while, the broker should be up and running:
-
-```
-$ oc get all
-NAME                               READY   STATUS      RESTARTS   AGE
-pod/amq-broker-basic-dc-1-deploy   0/1     Completed   0          13m
-pod/amq-broker-basic-dc-1-trrsw    1/1     Running     0          13m
-
-NAME                                          DESIRED   CURRENT   READY   AGE
-replicationcontroller/amq-broker-basic-dc-1   1         1         1       13m
-
-NAME                                   TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)           AGE
-service/amq-broker-basic-svc-amqp      ClusterIP   172.25.221.5    <none>        5672/TCP          13m
-service/amq-broker-basic-svc-jolokia   ClusterIP   172.25.51.89    <none>        8161/TCP          13m
-service/amq-broker-basic-svc-mqtt      ClusterIP   172.25.14.64    <none>        1883/TCP          13m
-service/amq-broker-basic-svc-stomp     ClusterIP   172.25.196.97   <none>        61613/TCP         13m
-service/amq-broker-basic-svc-tcp       ClusterIP   172.25.56.105   <none>        61616/TCP         13m
-service/artemis-nodeport-svc           NodePort    172.25.159.17   <none>        61616:30000/TCP   13m
-
-NAME                                                     REVISION   DESIRED   CURRENT   TRIGGERED BY
-deploymentconfig.apps.openshift.io/amq-broker-basic-dc   1          1         1         config
-
-NAME                                                      HOST/PORT                                                  PATH   SERVICES                       PORT    TERMINATION   WILDCARD
-route.route.openshift.io/amq-broker-basic-route-console   amq-broker-basic-route-console-amq-demo.apps-crc.testing          amq-broker-basic-svc-jolokia   <all>                 None
+$ oc new-project amq-cluster
+$ helm install amq-cluster .
 ```
 
 ## ADDING QUEUES, USERS AND ROLES

@@ -23,6 +23,7 @@ Basic Broker | [amq-basic](https://github.com/mcaimi/amq-custom-templates-opensh
 Basic Broker With SSL | [amq-ssl](https://github.com/mcaimi/amq-custom-templates-openshift/tree/master/helm/ssl)
 Basic Broker With Persistence | [amq-persistence](https://github.com/mcaimi/amq-custom-templates-openshift/tree/master/helm/persistence)
 Basic Broker With Persistence and SSL | [amq-persistence-ssl](https://github.com/mcaimi/amq-custom-templates-openshift/tree/master/helm/persistence-ssl)
+Clustered AMQ Broker with Persistence | [clustered-persistence](https://github.com/mcaimi/amq-custom-templates-openshift/tree/master/helm/clustered-persistence)
 
 For any of the OpenShift templates, the list of available parameters can be retrieved by running:
 
