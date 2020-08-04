@@ -6,6 +6,7 @@ application:
   pullPolicy: IfNotPresent
   volume_capacity: 1G
   replicas: 2
+  storageclass: default
 
 service:
   - name: jolokia

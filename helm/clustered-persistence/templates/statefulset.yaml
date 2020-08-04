@@ -262,6 +262,13 @@ spec:
               - key: drain.sh
                 path: drain.sh
             defaultMode: 0550
-        - name: {{ tpl .Values.templates.pvc_name . }}
-          persistentVolumeClaim:
-            claimName: {{ tpl .Values.templates.pvc_name . }}
+  volumeClaimTemplates:
+  - metadata:
+      name: {{ tpl .Values.templates.pvc_name . }}
+    spec:
+      accessModes:
+        - ReadWriteOnce
+      resources:
+        requests:
+          storage: {{ .Values.application.volume_capacity }}
+#      storageClassName: {{ .Values.application.storageclass }}
