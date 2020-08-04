@@ -1,6 +1,17 @@
 # CUSTOM RED HAT AMQ BROKER TEMPLATES FOR OPENSHIFT
 
-With these custom templates an user can deploy an AMQ Broker instance with custom configurations:
+Development is now underway to convert all those templates to Helm Charts:
+
+Avaliable Helm Charts | Repo Link
+--------------------- | ---------
+Basic Broker | [amq-basic](https://github.com/mcaimi/amq-custom-templates-openshift/tree/master/helm/amq-basic)
+Basic Broker With SSL | [amq-ssl](https://github.com/mcaimi/amq-custom-templates-openshift/tree/master/helm/ssl)
+Basic Broker With Persistence | [amq-persistence](https://github.com/mcaimi/amq-custom-templates-openshift/tree/master/helm/persistence)
+Basic Broker With Persistence and SSL | [amq-persistence-ssl](https://github.com/mcaimi/amq-custom-templates-openshift/tree/master/helm/persistence-ssl)
+Clustered AMQ Broker with Persistence | [clustered-persistence](https://github.com/mcaimi/amq-custom-templates-openshift/tree/master/helm/clustered-persistence)
+Clustered AMQ Broker with Persistence and SSL | [clustered-persistence-ssl](https://github.com/mcaimi/amq-custom-templates-openshift/tree/master/helm/clustered-persistence-ssl)
+
+Also, standard openshift templates are available: with these custom templates an user can deploy an AMQ Broker instance with custom configurations:
 
 1. Custom broker.xml file
 2. Custom artemis-users and artemis-roles property files
@@ -14,16 +25,6 @@ AMQ Broker with Storage Persistence | [PERSISTENCE](https://github.com/mcaimi/am
 AMQ Broker with Storage Persistence and SSL | [PERSISTENCE-SSL](https://github.com/mcaimi/amq-custom-templates-openshift/tree/master/persistence-ssl)
 Clustered AMQ Broker with Persistence | [CLUSTER-PERSISTENCE](https://github.com/mcaimi/amq-custom-templates-openshift/tree/master/cluster-persistence)
 Clustered AMQ Broker with Persistence and SSL | [CLUSTER-PERSISTENCE-SSL](https://github.com/mcaimi/amq-custom-templates-openshift/tree/master/cluster-persistence-ssl)
-
-Development is also underway to convert all those templates to Helm Charts: charts will be added when conversion is finished.
-
-Avaliable Helm Charts | Repo Link
---------------------- | ---------
-Basic Broker | [amq-basic](https://github.com/mcaimi/amq-custom-templates-openshift/tree/master/helm/amq-basic)
-Basic Broker With SSL | [amq-ssl](https://github.com/mcaimi/amq-custom-templates-openshift/tree/master/helm/ssl)
-Basic Broker With Persistence | [amq-persistence](https://github.com/mcaimi/amq-custom-templates-openshift/tree/master/helm/persistence)
-Basic Broker With Persistence and SSL | [amq-persistence-ssl](https://github.com/mcaimi/amq-custom-templates-openshift/tree/master/helm/persistence-ssl)
-Clustered AMQ Broker with Persistence | [clustered-persistence](https://github.com/mcaimi/amq-custom-templates-openshift/tree/master/helm/clustered-persistence)
 
 For any of the OpenShift templates, the list of available parameters can be retrieved by running:
 
