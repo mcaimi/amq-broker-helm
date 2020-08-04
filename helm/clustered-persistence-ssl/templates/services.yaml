@@ -1,0 +1,43 @@
+{{- $application_name := .Values.application.name }}
+{{- $svc_name := tpl .Values.templates.service . }}
+{{- $dc_name := tpl .Values.templates.deployment . }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    description: The broker's headless, non load balanced service
+  labels:
+    application: {{ $application_name }}
+    app: {{ $application_name }}
+  name: {{ $svc_name }}
+spec:
+  clusterIP: None
+  type: ClusterIP
+  publishNotReadyAddresses: true
+  ports:
+  {{- range .Values.service }}
+  - port: {{ .port }}
+    name: {{ .name }}
+    protocol: {{ .protocol }}
+    targetPort: {{ .port }}
+  {{- end }}
+  selector:
+    deploymentConfig: {{ $dc_name }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    description: The JGroups ping port for clustering.
+    service.alpha.kubernetes.io/tolerate-unready-endpoints: 'true'
+  labels:
+    application: {{ $application_name }}
+  name: {{ tpl .Values.ping_service.name . }}
+spec:
+  clusterIP: None  
+  ports:
+    - targetPort: {{ .Values.ping_service.port }}
+      port: {{ .Values.ping_service.port }}
+  selector:
+    deploymentConfig: {{ $dc_name }}

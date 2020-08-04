@@ -1,0 +1,298 @@
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  labels:
+    application: {{ .Values.application.name }}
+  name: {{ .Values.application.name }}-broker-ss
+  annotations:
+    alpha.image.policy.openshift.io/resolve-names: '*'
+    statefulsets.kubernetes.io/drainer-pod-template: |
+      {
+        "metadata": {
+          "labels": {
+            "app": "{{ .Values.application.name }}-amq-drainer"
+          }
+        },
+        "spec": {
+          "serviceAccount": "{{ tpl .Values.templates.service_account .}}",
+          "serviceAccountName": "{{ tpl .Values.templates.service_account .}}",
+          "terminationGracePeriodSeconds": 5,
+          "containers": [
+            {
+              "env": [
+                {
+                  "name": "APPLICATION_NAME",
+                  "value": "{{ .Values.application.name }}"
+                },
+                {
+                  "name": "HEADLESS_ENDPOINT",
+                  "value": "{{ tpl .Values.templates.service . }}"
+                },
+                {
+                  "name": "PING_SVC_NAME",
+                  "value": "{{ tpl .Values.ping_service.name . }}"
+                },
+                {
+                  "name": "AMQ_EXTRA_ARGS",
+                  "value": "--no-autotune"
+                },
+                {
+                  "name": "AMQ_USER",
+                  "valueFrom": {
+                    "secretKeyRef": {
+                      "name": "{{ tpl .Values.templates.app_secret . }}",
+                      "key": "AMQ_USER"
+                    }
+                  }
+                },
+                {
+                  "name": "AMQ_PASSWORD",
+                  "valueFrom": {
+                    "secretKeyRef": {
+                      "name": "{{ tpl .Values.templates.app_secret . }}",
+                      "key": "AMQ_PASSWORD"
+                    }
+                  }
+                },
+                {
+                  "name": "AMQ_ROLE",
+                  "value": "{{ .Values.parameters.amq_admin_role }}"
+                },
+                {
+                  "name": "AMQ_NAME",
+                  "value": "{{ .Values.parameters.amq_broker_name }}"
+                },
+                {
+                  "name": "AMQ_TRANSPORTS",
+                  "value": "{{ .Values.parameters.amq_protocols }}"
+                },
+                {
+                  "name": "AMQ_GLOBAL_MAX_SIZE",
+                  "value": "{{ .Values.parameters.amq_global_max_size }}"
+                },
+                {
+                  "name": "AMQ_ALLOW_ANONYMOUS",
+                  "value": "{{ .Values.parameters.allow_anonymous }}"
+                },
+                {
+                  "name": "AMQ_DATA_DIR",
+                  "value": "{{ .Values.parameters.amq_data_dir }}"
+                },
+                {
+                  "name": "AMQ_DATA_DIR_LOGGING",
+                  "value": "{{ .Values.parameters.amq_data_dir_logging }}"
+                },
+                {
+                  "name": "AMQ_CLUSTERED",
+                  "value": "{{ .Values.parameters.amq_clustered }}"
+                },
+                {
+                  "name": "AMQ_REPLICAS",
+                  "value": "{{ .Values.application.replicas }}"
+                },
+                {
+                  "name": "AMQ_CLUSTER_USER",
+                  "valueFrom": {
+                    "secretKeyRef": {
+                      "name": "{{ tpl .Values.templates.app_secret .}}",
+                      "key": "AMQ_CLUSTER_USER"
+                    }
+                  }
+                },
+                {
+                  "name": "AMQ_CLUSTER_PASSWORD",
+                  "valueFrom": {
+                    "secretKeyRef": {
+                      "name": "{{ tpl .Values.templates.app_secret .}}",
+                      "key": "AMQ_CLUSTER_PASSWORD"
+                    }
+                  }
+                },
+                {
+                  "name": "POD_NAMESPACE",
+                  "valueFrom": {
+                    "fieldRef": {
+                      "fieldPath": "metadata.namespace"
+                    }
+                  }
+                },
+                {
+                  "name": "OPENSHIFT_DNS_PING_SERVICE_PORT",
+                  "value": "{{ .Values.ping_service.port}}"
+                }
+              ],
+              "image": "{{ tpl .Values.templates.broker_image .}}",
+              "name": "{{ .Values.application.name }}-amq-drainer-pod",
+
+              "command": ["/bin/sh", "-c", "echo \"Starting the drainer\" ; /opt/amq/bin/drain.sh; echo \"Drain completed! Exit code $?\""],
+              "volumeMounts": [
+                {
+                  "name": "{{ tpl .Values.templates.pvc_name . }}",
+                  "mountPath": "{{ .Values.parameters.amq_data_dir }}"
+                }
+              ]
+            }
+          ]
+        }
+      }
+spec:
+  podManagementPolicy: OrderedReady
+  replicas: {{ .Values.application.replicas }}
+  selector:
+    matchLabels:
+      app: {{ .Values.application.name }}
+  serviceName: {{ tpl .Values.templates.service . }}
+  template:
+    metadata:
+      labels:
+        application: {{ .Values.application.name }}
+        deploymentConfig: {{ tpl .Values.templates.deployment . }}
+        app: {{ .Values.application.name }}
+      name: {{ .Values.application.name }}
+    spec:
+      containers:
+      - env:
+        - name: APPLICATION_NAME
+          value: "{{ .Values.application.name }}"
+        - name: PING_SVC_NAME
+          value: "{{ tpl .Values.ping_service.name . }}"
+        - name: AMQ_USER
+          valueFrom:
+            secretKeyRef:
+              name: {{ tpl .Values.templates.app_secret . }}
+              key: AMQ_USER
+        - name: AMQ_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: {{ tpl .Values.templates.app_secret . }}
+              key: AMQ_PASSWORD
+        - name: AMQ_ROLE
+          value: "{{ .Values.parameters.amq_admin_role }}"
+        - name: AMQ_NAME
+          value: "{{ .Values.parameters.amq_broker_name }}"
+        - name: AMQ_TRANSPORTS
+          value: "{{ .Values.parameters.amq_protocols }}"
+        - name: AMQ_KEYSTORE_TRUSTSTORE_DIR
+          value: /etc/amq-secret-volume
+        - name: AMQ_TRUSTSTORE
+          value: {{ .Values.tls.truststore }}
+        - name: AMQ_TRUSTSTORE_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: {{ tpl .Values.templates.app_certificates . }}
+              key: AMQ_TRUSTSTORE_PASSWORD
+        - name: AMQ_KEYSTORE
+          value: {{ .Values.tls.keystore }}
+        - name: AMQ_KEYSTORE_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: {{ tpl .Values.templates.app_certificates . }}
+              key: AMQ_KEYSTORE_PASSWORD
+        - name: AMQ_SSL_PROVIDER
+          value: {{ tpl .Values.parameters.ssl_provider . }}
+        - name: AMQ_GLOBAL_MAX_SIZE
+          value: "{{ .Values.parameters.amq_global_max_size }}"
+        - name: AMQ_REQUIRE_LOGIN
+          value: "{{ .Values.parameters.amq_require_login }}"
+        - name: AMQ_DATA_DIR
+          value: "{{ .Values.parameters.amq_data_dir }}"
+        - name: AMQ_DATA_DIR_LOGGING
+          value: "{{ .Values.parameters.amq_data_dir_logging }}"
+        - name: AMQ_CLUSTERED
+          value: "{{ .Values.parameters.amq_clustered }}"
+        - name: AMQ_REPLICAS
+          value: "{{ .Values.application.replicas }}"
+        - name: AMQ_CLUSTER_USER
+          valueFrom:
+            secretKeyRef:
+              name: {{ tpl .Values.templates.app_secret . }}
+              key: AMQ_CLUSTER_USER
+        - name: AMQ_CLUSTER_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: {{ tpl .Values.templates.app_secret . }}
+              key: AMQ_CLUSTER_PASSWORD
+        - name: AMQ_EXTRA_ARGS
+          value: {{ if .Values.parameters.amq_extra_args }} "{{ .Values.parameters.amq_extra_args }}" {{ else }} "" {{ end }}
+        - name: AMQ_ANYCAST_PREFIX
+          value: {{ if .Values.parameters.amq_anycast_prefix }} "{{ .Values.parameters.amq_anycast_prefix }}" {{ else }} "jms.queue." {{ end }}
+        - name: AMQ_MULTICAST_PREFIX
+          value: {{ if .Values.parameters.amq_multicast_prefix }} "{{ .Values.parameters.amq_multicast_prefix }}" {{ else }} "jms.topic." {{ end }}
+        - name: POD_NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        - name: AMQ_ENABLE_METRICS_PLUGIN
+          value: "{{ .Values.parameters.amq_enable_metrics_plugin }}"
+        - name: AMQ_JOURNAL_TYPE
+          value: "{{ .Values.parameters.amq_journal_type }}"
+        - name: BROKER_XML
+          valueFrom:
+            configMapKeyRef:
+              name: {{ tpl .Values.templates.config_cm . }}
+              key: broker.xml
+        readinessProbe:
+          exec:
+            command:
+            - "/bin/bash"
+            - "-c"
+            - "/opt/amq/bin/readinessProbe.sh"
+        image: "{{ tpl .Values.templates.broker_image . }}"
+        name: {{ tpl .Values.templates.deployment . }}
+        ports:
+        {{- range .Values.service }}
+        - containerPort: {{ .port }}
+          name: {{ .name }}
+          protocol: {{ .protocol }}
+        {{- end }}
+        volumeMounts:
+        - name: {{ tpl .Values.templates.pvc_name . }}
+          mountPath: {{ .Values.parameters.amq_data_dir }}
+        - name: broker-config-volume
+          mountPath: /opt/amq/conf
+          readOnly: true
+        - name: broker-script-override-custom
+          mountPath: /opt/amq/bin/configure_custom_config.sh
+          subPath: configure_custom_config.sh
+          readOnly: true
+        - name: broker-script-override-custom
+          mountPath: /opt/amq/bin/launch.sh
+          subPath: launch.sh
+          readOnly: true
+        - name: broker-script-override-custom
+          mountPath: /opt/amq/bin/drain.sh
+          subPath: drain.sh
+          readOnly: true
+        - mountPath: /etc/amq-secret-volume
+          name: broker-secret-volume
+          readOnly: true
+      terminationGracePeriodSeconds: 60
+      volumes:
+        - name: broker-config-volume
+          configMap:
+            name: {{ tpl .Values.templates.config_cm . }}
+        - name: broker-secret-volume
+          secret:
+            secretName: {{ tpl .Values.templates.app_certificates . }}
+        - name: broker-script-override-custom
+          configMap:
+            name: {{ tpl .Values.templates.override_cm . }}
+            items:
+              - key: configure_custom_config.sh
+                path: configure_custom_config.sh
+              - key: launch.sh
+                path: launch.sh
+              - key: drain.sh
+                path: drain.sh
+            defaultMode: 0550
+  volumeClaimTemplates:
+  - metadata:
+      name: {{ tpl .Values.templates.pvc_name . }}
+    spec:
+      accessModes:
+        - ReadWriteOnce
+      resources:
+        requests:
+          storage: {{ .Values.application.volume_capacity }}
+      storageClassName: {{ .Values.application.storageclass }}
