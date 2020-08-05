@@ -1,4 +1,4 @@
-# CLUSTERED BROKER HELM CHART WITH DISK PERSISTENCE
+# CLUSTERED BROKER HELM CHART WITH DISK PERSISTENCE AND SSL SUPPORT
 
 This chart will deploy a clustered broker with disk persistence and no SSL endpoint.
 *This is still heavily in development, it is definitely not ready to be used in a production environment*
@@ -6,6 +6,16 @@ This chart will deploy a clustered broker with disk persistence and no SSL endpo
 ## INSTALLATION
 
 The most basic deployment can be performed by following these steps:
+
+- Create (or import) a keystore/truststore pair for this broker: look [here](https://github.com/mcaimi/amq-custom-templates-openshift/blob/master/README.md) for an howto. Put the files under `tls/` and update the tls section in `values.yaml`:
+
+```
+tls:
+  keystore: keystore.ks
+  truststore: keystore.ts
+  keystore_password: kspwd
+  truststore_password: tspwd
+```
 
 - Customize the application name in `values.yaml`:
 
@@ -63,8 +73,8 @@ ping_service:
 - Install the Chart under your preferred project
 
 ```
-$ oc new-project amq-cluster
-$ helm install amq-cluster .
+$ oc new-project amq-cluster-ssl
+$ helm install amq-cluster-ssl .
 ```
 
 ## ADDING QUEUES, USERS AND ROLES
