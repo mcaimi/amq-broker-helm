@@ -59,18 +59,28 @@ templates:
 admin:
   user: admin
   password: password
-  role: admin
+  roles:
+    - admin
 
 users:
   - name: demouser
     password: "demo"
-    role: user
+    roles:
+      - user
   - name: anotheruser
     password: "demo1"
-    role: user
+    roles:
+      - user
 
 queues:
-  - name: demoQueue
+  - name: QUEUE_1
+    dlq_address: QUEUE_1_DLQ
+    expiry_address:
+    max_delivery_attempts:
+    redelivery_delay:
+    max_size_bytes:
+    message_counter_history_day_limit:
+    address_full_policy:
     permissions:
       - grant: consume
         roles:
