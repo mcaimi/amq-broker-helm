@@ -23,7 +23,8 @@ the application name will be used as a prefix for most of the objects deployed b
 admin:
   user: admin
   password: password
-  role: admin
+  role: 
+    - admin
 ``` 
 
 - Choose a node port TCP value and corresponding service for the external service in `values.yaml`:
@@ -86,10 +87,12 @@ To add multiple users to the broker edit the `users` section in `values.yaml`. F
 users:
   - name: demouser
     password: "demo"
-    role: user
+    role: 
+      - user
   - name: anotheruser
     password: "demo1"
-    role: user
+    role:
+      - user
 ```
 
 would be rendered by the Helm Chart into these two files:

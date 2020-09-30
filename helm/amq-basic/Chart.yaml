@@ -1,5 +1,5 @@
 apiVersion: v2
-name: AMQ Broker Basic deployment Chart
+name: amq-basic
 version: 1.0
 description: An Heml Chart that deploys a Basic AMQ Broker (NO PERSISTENCE, NO SSL)
 type: application

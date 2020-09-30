@@ -1,6 +1,7 @@
 application:
   name: amq-broker-basic
   rolloutTrigger: ConfigChange
+  strategy: Rolling
   amq_broker_version: 7.7
   amq_broker_image: registry.redhat.io/amq7/amq-broker
   pullPolicy: IfNotPresent
@@ -56,31 +57,43 @@ templates:
 admin:
   user: admin
   password: password
-  role: admin
+  role:
+    - admin
 
 users:
-  - name: demouser
-    password: "demo"
-    role: user
-  - name: anotheruser
-    password: "demo1"
-    role: user
+  - name: user1
+    password: "password"
+    role: 
+      - aProducer
+      - aConsumer
+  - name: user2
+    password: "password1"
+    role:
+      - bProducer
+      - bConsumer
 
 queues:
-  - name: demoQueue
+  - name: QUEUE_1
+    dlq_address: QUEUE_1_DLQ
+    expiry_address:
+    max_delivery_attempts:
+    redelivery_delay:
+    max_size_bytes:
+    message_counter_history_day_limit:
+    address_full_policy:
     permissions:
       - grant: consume
         roles:
           - admin
-          - user
+          - bConsumer
       - grant: browse
         roles:
           - admin
-          - user
+          - bConsuner
       - grant: send
         roles:
           - admin
-          - user
+          - aProducer
       - grant: manage
         roles:
           - admin
