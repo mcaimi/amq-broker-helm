@@ -56,18 +56,18 @@ templates:
 admin:
   user: admin
   password: password
-  role:
+  roles:
     - admin
 
 users:
   - name: user1
     password: "password"
-    role: 
+    roles: 
       - aProducer
       - aConsumer
   - name: user2
     password: "password1"
-    role:
+    roles:
       - bProducer
       - bConsumer
 
