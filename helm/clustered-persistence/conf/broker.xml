@@ -7,9 +7,9 @@
       <!-- this could be ASYNCIO, MAPPED, NIO           ASYNCIO: Linux Libaio           MAPPED: mmap files           NIO: Plain Java Files       -->
       <journal-type>NIO</journal-type>
       <paging-directory>${AMQ_DATA_DIR}/paging</paging-directory>
-      <bindings-directory>${AMQ_DATA_DIR}bindings</bindings-directory>
-      <journal-directory>${AMQ_DATA_DIR}journal</journal-directory>
-      <large-messages-directory>${AMQ_DATA_DIR}large-messages</large-messages-directory>
+      <bindings-directory>${AMQ_DATA_DIR}/bindings</bindings-directory>
+      <journal-directory>${AMQ_DATA_DIR}/journal</journal-directory>
+      <large-messages-directory>${AMQ_DATA_DIR}/large-messages</large-messages-directory>
       <journal-datasync>true</journal-datasync>
       <journal-min-files>2</journal-min-files>
       <journal-pool-files>10</journal-pool-files>
@@ -57,7 +57,7 @@
       {{- range .Values.queues }}
         <security-setting match="{{ .name }}">
         {{- range .permissions }}
-         <permission type="{{ .grant }}" roles="{{- range .roles }}{{ if . }}{{ . }},{{- end }}{{- end -}}" />
+        <permission type="{{ .grant }}" roles="{{- range $i, $el := .roles }}{{if $i}},{{end}}{{$el}}{{- end -}}" />
         {{- end }}
          </security-setting>
       {{- end }}
@@ -68,9 +68,9 @@
             <permission type="deleteDurableQueue" roles="${AMQ_ROLE}" />
             <permission type="createAddress" roles="${AMQ_ROLE}" />
             <permission type="deleteAddress" roles="${AMQ_ROLE}" />
-            <permission type="consume" roles="${AMQ_ROLE},user" />
-            <permission type="browse" roles="${AMQ_ROLE},user" />
-            <permission type="send" roles="${AMQ_ROLE},user" />
+            <permission type="consume" roles="${AMQ_ROLE}" />
+            <permission type="browse" roles="${AMQ_ROLE}" />
+            <permission type="send" roles="${AMQ_ROLE}" />
             <!-- we need this otherwise ./artemis data imp wouldn't work -->
             <permission type="manage" roles="${AMQ_ROLE}" />
          </security-setting>
@@ -85,38 +85,76 @@
             <max-size-bytes>-1</max-size-bytes>
             <message-counter-history-day-limit>10</message-counter-history-day-limit>
             <address-full-policy>PAGE</address-full-policy>
-            <auto-create-queues>true</auto-create-queues>
-            <auto-create-addresses>true</auto-create-addresses>
-            <auto-create-jms-queues>true</auto-create-jms-queues>
-            <auto-create-jms-topics>true</auto-create-jms-topics>
          </address-setting>
          <!--default for catch all-->
          <address-setting match="#">
             <dead-letter-address>DLQ</dead-letter-address>
             <expiry-address>ExpiryQueue</expiry-address>
-            <redelivery-delay>0</redelivery-delay>
+            <max-delivery-attempts>3</max-delivery-attempts>
+            <redelivery-delay>5000</redelivery-delay>
             <!-- with -1 only the global-max-size is in use for limiting -->
             <max-size-bytes>-1</max-size-bytes>
             <message-counter-history-day-limit>10</message-counter-history-day-limit>
             <address-full-policy>PAGE</address-full-policy>
-            <auto-create-queues>true</auto-create-queues>
-            <auto-create-addresses>true</auto-create-addresses>
-            <auto-create-jms-queues>true</auto-create-jms-queues>
-            <auto-create-jms-topics>true</auto-create-jms-topics>
          </address-setting>
-      </address-settings>
-      <addresses>
-         <address name="DLQ">
-            <anycast>
-               <queue name="DLQ" />
-            </anycast>
-         </address>
-         <address name="ExpiryQueue">
-            <anycast>
-               <queue name="ExpiryQueue" />
-            </anycast>
-         </address>
-      </addresses>
+         {{- range .Values.queues }}
+         <address-setting match="{{ .name }}">
+         {{- if .dlq_address }}
+           <dead-letter-address>{{ .dlq_address }}</dead-letter-address>
+         {{- end }}
+         {{- if .expiry_address }}
+           <expiry-address>{{ .expiry_address }}</expiry-address>
+         {{- end }}
+         {{- if .max_delivery_attempts }}
+           <max-delivery-attempts>{{ .max_delivery_attempts }}</max-delivery-attempts>
+         {{- end }}
+         {{- if .redelivery_delay }}
+           <redelivery-delay>{{ .redelivery_delay }}</redelivery-delay>
+         {{- end }}
+         {{- if .max_size_bytes }}
+           <max-size-bytes>{{ .max_size_bytes }}</max-size-bytes>
+         {{- end }}
+         {{- if .message_counter_history_day_limit }}
+           <message-counter-history-day-limit>{{ .message_counter_history_day_limit }}</message-counter-history-day-limit>
+         {{- end }}
+         {{- if .address_full_policy }}
+           <address-full-policy>{{ .address_full_policy }}</address-full-policy>
+         {{- end }}
+         </address-setting>
+       {{- end }}
+     </address-settings>
+     <addresses>
+        <address name="DLQ">
+           <anycast>
+              <queue name="DLQ" />
+           </anycast>
+        </address>
+        <address name="ExpiryQueue">
+           <anycast>
+              <queue name="ExpiryQueue" />
+           </anycast>
+        </address>
+      {{- range .Values.queues }}
+        <address name="{{ .name }}">
+          <anycast>
+            <queue name="{{ .name }}" />
+          </anycast>
+        </address>
+        {{- if .dlq_address }}
+        <address name="{{ .dlq_address }}">
+          <anycast>
+            <queue name="{{ .dlq_address }}" />
+          </anycast>
+        </address>
+        {{- end }}
+        {{- if .expiry_address }}
+        <address name="{{ .expiry_address }}">
+          <anycast>
+            <queue name="{{ .expiry_address }}" />
+          </anycast>
+        </address>
+        {{- end }}
+      {{- end }}
+     </addresses>
    </core>
 </configuration>
-
