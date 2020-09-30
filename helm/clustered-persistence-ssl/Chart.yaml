@@ -1,7 +1,7 @@
 apiVersion: v2
-name: AMQ Broker Clustered deployment Chart
+name: clustered-persistence-ssl
 version: 1.0
-description: An Heml Chart that deploys a Clustered AMQ Broker (with SSL)
+description: An Helm Chart that deploys a Clustered AMQ Broker (with SSL)
 type: application
 keywords:
   - activemq
