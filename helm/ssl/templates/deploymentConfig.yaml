@@ -15,6 +15,9 @@ spec:
     type: Rolling
   template:
     metadata:
+      # trigger deployments on config map changes
+      annotations:
+        configmap/checksum: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
       labels:
         application: {{ .Values.application.name }}
         deploymentConfig: {{ tpl .Values.templates.deployment . }}
