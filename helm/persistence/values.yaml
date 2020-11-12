@@ -74,7 +74,7 @@ users: []
 #      - user
 
 # Create queues
-queues: {}
+queues: []
 #  - name: QUEUE_1
 #    dlq_address: QUEUE_1_DLQ
 #    expiry_address:
