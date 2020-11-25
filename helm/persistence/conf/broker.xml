@@ -136,9 +136,13 @@
          </address>
        {{- range .Values.queues }}
          <address name="{{ .name }}">
+        {{- if( .type ) and eq .type "multicast" }}
+           <multicast/>
+        {{- else }}
            <anycast>
              <queue name="{{ .name }}" />
            </anycast>
+        {{- end }}
          </address>
          {{- if .dlq_address }}
          <address name="{{ .dlq_address }}">
@@ -158,3 +162,4 @@
       </addresses>
    </core>
 </configuration>
+  
