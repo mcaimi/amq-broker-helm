@@ -17,5 +17,5 @@ spec:
   - port: {{ .port }}
     targetPort: {{ .port }}
   selector:
-    deploymentConfig: {{ $dc_name }}
+    deployment: {{ $dc_name }}
 {{- end }}

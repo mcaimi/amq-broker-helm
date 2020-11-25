@@ -11,7 +11,6 @@ The most basic deployment can be performed by following these steps:
 ```
 application:
   name: amq-broker-basic
-  rolloutTrigger: ConfigChange
   [...]
 ```
 
@@ -23,16 +22,17 @@ the application name will be used as a prefix for most of the objects deployed b
 admin:
   user: admin
   password: password
-  role: 
+  role:
     - admin
 ``` 
 
-- Choose a node port TCP value and corresponding service for the external service in `values.yaml`:
+- If needed, enable and choose a node port TCP value and corresponding service for the external service in `values.yaml`:
 
 ```
 nodeport:
   port: 30000
   service: multiplex
+  enabled: true
 ```
 this port needs to be in the allowed NodePort range set up in the kubelet (typically in the range 30000-32768)
 
@@ -101,10 +101,10 @@ would be rendered by the Helm Chart into these two files:
 
 ```
     ## CUSTOMCONFIG
-    
+
     # ADMIN USER
     admin = password
-    
+
     # ADDITIONAL USERS
     demouser = demo
     anotheruser = demo1

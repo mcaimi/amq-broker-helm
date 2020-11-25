@@ -1,6 +1,5 @@
 application:
   name: amq-broker-basic
-  rolloutTrigger: ConfigChange
   amq_broker_version: 7.7
   amq_broker_image: registry.redhat.io/amq7/amq-broker
   pullPolicy: IfNotPresent
@@ -26,10 +25,11 @@ service:
     description: "Multiplexed protocol endpoint (CORE+All the others)"
     protocol: TCP
     port: 61616
-  
+
 nodeport:
   port: 30000
   service: multiplex
+  enabled: true
 
 parameters:
   amq_protocols: "openwire,amq,stomp,mqtt,hornetq,core"
@@ -59,40 +59,40 @@ admin:
   roles:
     - admin
 
-users:
-  - name: user1
-    password: "password"
-    roles: 
-      - aProducer
-      - aConsumer
-  - name: user2
-    password: "password1"
-    roles:
-      - bProducer
-      - bConsumer
+users: []
+#  - name: user1
+#    password: "password"
+#    roles: 
+#      - aProducer
+#      - aConsumer
+#  - name: user2
+#    password: "password1"
+#    roles:
+#      - bProducer
+#      - bConsumer
 
-queues:
-  - name: QUEUE_1
-    dlq_address: QUEUE_1_DLQ
-    expiry_address:
-    max_delivery_attempts:
-    redelivery_delay:
-    max_size_bytes:
-    message_counter_history_day_limit:
-    address_full_policy:
-    permissions:
-      - grant: consume
-        roles:
-          - admin
-          - bConsumer
-      - grant: browse
-        roles:
-          - admin
-          - bConsuner
-      - grant: send
-        roles:
-          - admin
-          - aProducer
-      - grant: manage
-        roles:
-          - admin
+queues: []
+#  - name: QUEUE_1
+#    dlq_address: QUEUE_1_DLQ
+#    expiry_address:
+#    max_delivery_attempts:
+#    redelivery_delay:
+#    max_size_bytes:
+#    message_counter_history_day_limit:
+#    address_full_policy:
+#    permissions:
+#      - grant: consume
+#        roles:
+#          - admin
+#          - bConsumer
+#      - grant: browse
+#        roles:
+#          - admin
+#          - bConsuner
+#      - grant: send
+#        roles:
+#          - admin
+#          - aProducer
+#      - grant: manage
+#        roles:
+#          - admin
