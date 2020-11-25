@@ -17,7 +17,7 @@ spec:
         configmap/checksum: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
       labels:
         application: {{ .Values.application.name }}
-        deploymentConfig: {{ tpl .Values.templates.deployment . }}
+        deployment: {{ tpl .Values.templates.deployment . }}
       name: {{ tpl .Values.templates.deployment . }}
     spec:
       containers:
