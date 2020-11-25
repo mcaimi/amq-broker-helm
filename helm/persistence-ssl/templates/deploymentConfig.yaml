@@ -1,6 +1,6 @@
 ---
-apiVersion: apps.openshift.io/v1
-kind: DeploymentConfig
+apiVersion: apps/v1
+kind: Deployment
 metadata:
   labels:
     application: {{ .Values.application.name }}
@@ -8,11 +8,8 @@ metadata:
 spec:
   replicas: 1
   selector:
-    deploymentConfig: {{ tpl .Values.templates.deployment . }}
-  strategy:
-    rollingParams:
-      maxSurge: 0
-    type: Rolling
+    matchLabels:
+      application: {{ .Values.application.name }}
   template:
     metadata:
       # trigger deployments on config map changes
@@ -132,5 +129,3 @@ spec:
         - name: {{ tpl .Values.templates.pvc_name . }}
           persistentVolumeClaim:
             claimName: {{ tpl .Values.templates.pvc_name . }}
-  triggers:
-  - type: {{ .Values.application.rolloutTrigger }}

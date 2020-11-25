@@ -21,7 +21,6 @@ tls:
 ```
 application:
   name: amq-broker-persistence-ssl
-  rolloutTrigger: ConfigChange
   [...]
   volume_capacity: "1G"
 ```
@@ -44,12 +43,13 @@ admin:
   role: admin
 ``` 
 
-- Choose a node port TCP value and corresponding service for the external service in `values.yaml`:
+- If needed, enable and choose a node port TCP value and corresponding service for the external service in `values.yaml`:
 
 ```
 nodeport:
   port: 30003
   service: multiplex-ssl
+  enabled: true
 ```
 this port needs to be in the allowed NodePort range set up in the kubelet (typically in the range 30000-32768)
 
