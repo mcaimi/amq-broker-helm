@@ -1,6 +1,5 @@
 application:
   name: amq-broker-persistence
-  rolloutTrigger: ConfigChange
   amq_broker_version: 7.7
   amq_broker_image: registry.redhat.io/amq7/amq-broker
   pullPolicy: IfNotPresent
@@ -37,6 +36,7 @@ ping_service:
 nodeport:
   port: 30002
   service: multiplex
+  enabled: true
 
 parameters:
   amq_protocols: "openwire,amq,stomp,mqtt,hornetq,core"
@@ -76,38 +76,38 @@ admin:
   roles:
     - admin
 
-users:
-  - name: demouser
-    password: "demo"
-    roles: 
-      - user
-  - name: anotheruser
-    password: "demo1"
-    roles:
-      - user
-
-queues:
-  - name: QUEUE_1
-    dlq_address: QUEUE_1_DLQ
-    expiry_address:
-    max_delivery_attempts:
-    redelivery_delay:
-    max_size_bytes:
-    message_counter_history_day_limit:
-    address_full_policy:
-    permissions:
-      - grant: consume
-        roles:
-          - admin
-          - user
-      - grant: browse
-        roles:
-          - admin
-          - user
-      - grant: send
-        roles:
-          - admin
-          - user
-      - grant: manage
-        roles:
-          - admin
+users: []
+#  - name: demouser
+#    password: "demo"
+#    roles: 
+#      - user
+#  - name: anotheruser
+#    password: "demo1"
+#    roles:
+#      - user
+#
+queues: []
+#  - name: QUEUE_1
+#    dlq_address: QUEUE_1_DLQ
+#    expiry_address:
+#    max_delivery_attempts:
+#    redelivery_delay:
+#    max_size_bytes:
+#    message_counter_history_day_limit:
+#    address_full_policy:
+#    permissions:
+#      - grant: consume
+#        roles:
+#          - admin
+#          - user
+#      - grant: browse
+#        roles:
+#          - admin
+#          - user
+#      - grant: send
+#        roles:
+#          - admin
+#          - user
+#      - grant: manage
+#        roles:
+#          - admin

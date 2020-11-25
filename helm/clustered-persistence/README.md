@@ -12,7 +12,6 @@ The most basic deployment can be performed by following these steps:
 ```
 application:
   name: amq-broker-persistence
-  rolloutTrigger: ConfigChange
   [...]
   volume_capacity: "1G"
   replicas: 2
@@ -43,12 +42,13 @@ admin:
   role: admin
 ``` 
 
-- Choose a node port TCP value and corresponding service for the external service in `values.yaml`:
+- If needed, enable and choose a node port TCP value and corresponding service for the external service in `values.yaml`:
 
 ```
 nodeport:
   port: 30002
   service: multiplex
+  enabled: true
 ```
 this port needs to be in the allowed NodePort range set up in the kubelet (typically in the range 30000-32768)
 

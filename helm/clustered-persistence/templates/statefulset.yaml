@@ -147,7 +147,7 @@ spec:
     metadata:
       labels:
         application: {{ .Values.application.name }}
-        deploymentConfig: {{ tpl .Values.templates.deployment . }}
+        deployment: {{ tpl .Values.templates.deployment . }}
         app: {{ .Values.application.name }}
       name: {{ .Values.application.name }}
     spec:
