@@ -95,8 +95,14 @@ spec:
                 path: configure_custom_config.sh
             defaultMode: 0550
         - name: broker-config-volume
-          configMap:
-            name: {{ tpl .Values.templates.config_cm . }}
+          projected:
+            sources:
+            - configMap:
+                name: {{ tpl .Values.templates.config_cm . }}
+            {{- range .Values.security.secrets }}
+            - secret:
+                name: {{ . }}
+            {{- end }}
         - name: {{ tpl .Values.templates.pvc_name . }}
           persistentVolumeClaim:
             claimName: {{ tpl .Values.templates.pvc_name . }}

@@ -9,3 +9,7 @@ spec:
   to:
     kind: Service
     name: {{ tpl .Values.templates.service .}}-jolokia
+  tls:
+    termination: edge
+    insecureEdgeTerminationPolicy: Redirect
+  wildcardPolicy: None
