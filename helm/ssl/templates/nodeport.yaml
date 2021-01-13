@@ -1,4 +1,4 @@
-{{- if .Values.nodepord.enabled }}
+{{- if .Values.nodeport.enabled }}
 {{- $np_svc := .Values.nodeport }}
 {{- range .Values.service }}
 {{- if eq .name $np_svc.service }}
