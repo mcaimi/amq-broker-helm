@@ -11,6 +11,8 @@ spec:
   selector:
     matchLabels:
       application: {{ .Values.application.name }}
+  strategy:
+    type: Recreate
   template:
     metadata:
       # trigger deployments on config map changes
