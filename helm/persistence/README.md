@@ -2,6 +2,46 @@
 
 This chart will deploy a basic broker with disk persistence and no SSL endpoint.
 
+|NAME                              | DESCRIPTION                                              | DEFAULT VALUE |
+|----------------------------------|----------------------------------------------------------|----------------|
+| application.name                 | The name for the application.                            | `amq-broker-persistence` |
+| application.amq_broker_version   | Broker Image tag                                         | `7.7` |
+| application.amq_broker_image     | Broker Image name                                        | `registry.redhat.io/amq7/amq-broker` |
+| application.pullPolicy           | Pull policy                                              | `IfNotPresent` |
+| application.volume_capacity      | Size of persistent volume                                | `1G` |
+| service                          | Array of services ports and protocols                    | See values.yaml |
+| nodeport.enabled                 | Create node port to expose AMQ to clients outside of the cluster | `30002` |
+| nodeport.port                    | Node port number used when enabled | `30002` |
+| parameters.amq_protocols         | Protocols to configure, separated by commas. Allowed values are: `openwire`, `amqp`, `stomp`, `mqtt` and `hornetq`. | `openwire,amqp,stomp,mqtt,hornetq` |
+| parameters.amq_broker_name       | Broker name (TODO is this used? Same as application.name ) | `broker` |
+| parameters.amq_admin_role        | Admin role | `admin` |
+| parameters.amq_global_max_size   | Maximum amount of memory which message data may consume ( TODO: 100 gb as default is a bit high for most systems) | `"100 gb"` |
+| parameters.amq_require_login     | Determines whether or not the broker will allow anonymous access, or require login | `False` |
+| parameters.amq_extra_args        | Extra arguments for broker creation  | `` |
+| parameters.amq_anycast_prefix    | Anycast prefix applied to the multiplexed protocol port 61616   | `jmx.queue.` |
+| parameters.amq_multicast_prefix  | Multicast prefix applied to the multiplexed protocol port 61616   | `jmx.topic.` |
+| parameters.imagestream_namespace | Namespace in which the ImageStreams for Red Hat Middleware images are installed. These ImageStreams are normally installed in the openshift namespace. You should only need to modify this if you've installed the ImageStreams in a different namespace/project.| `openshift` |
+| parameters.amq_enable_metrics_plugin | Whether to enable artemis metrics plugin | `False` |
+| parameters.amq_journal_type      | Journal type to use; aio or nio supported | `nio` |
+| parameters.amq_data_dir          | Directory for storing data | `/opt/amq/data` |
+| templates.service                | Template for service name | See values.yaml |
+| templates.deployment             | Template for deployment name | See values.yaml |
+| templates.route                  | Template for route name | See values.yaml |
+| templates.broker_image           | Template for image name | See values.yaml |
+| templates.override_cm            | Template for ConfigMap name containing overrides | See values.yaml |
+| templates.config_cm              | Template for ConfigMap name | See values.yaml |
+| templates.app_secret             | Template for name of a secret containing credential data such as users and passwords | See values.yaml |
+| templates.pvc_name               | Template for persistent volume name | See values.yaml |
+| security.enabled                 | Enabled security | `true` |
+| security.secrets                 | Array of names of additional secrets to mount into /opt/amq/conf  | [] |
+| security.createSecret            | Create secret with users and passwords. Disable when secrets is created outside of this chart. For example by ExternalSecret | `true` |
+| security.jaasUsers.key           | Specify the key (filename) of the user/password file in the secret | `artemis-users.properties` |
+| admin.user                       | Admin user. Mandatory even if security.createSecret is `false`) | `admin` |
+| admin.password                   | Admin password. Optional. Only used if security.createSecret is `true` | `password` |
+| admin.roles                      | Array of role names to assign to admin | `[ admin ]` |
+| users                            | Array of additional users. Only used if security.createSecret is `true` else users are expected to be defined in secret. | [] |
+| queues                           | Array of queues to create. | [] |
+
 ## INSTALLATION
 
 The most basic deployment can be performed by following these steps:
@@ -117,6 +157,38 @@ would be rendered by the Helm Chart into these two files:
     user = anotheruser
 ```
 
+Users and passwords may be stored in an existing secret instead of as clear text in the values.yaml  
+Disable creation of secret and specify the name of secret. 
+Set the `jaasUsers.key` to the filename used in the secret. Note that the filename have to be something different from  
+`artemis-users.properties` as the default file will be mounted in the same directory in the container.  
+For example: 
+```
+security:
+  secrets:
+    - broker-external-secret
+  createSecret: false
+  jaasUsers:
+    key: my-secured-artemis-users.properties
+
+```
+and example of the secret.
+*Note*, that the AMQ_USER and AMQ_PASSWORD *must* be set as  
+the broker still uses these environment parameters:
+```
+stringData:
+  AMQ_USER: broker-admin
+  AMQ_PASSWORD: mySecretPassword
+  my-secured-artimis-users.properties: |
+    # ADMIN USER
+    broker-admin = mySecretPassword
+    
+    # ADDITIONAL USERS
+    consumer-user = otherSecretPassword
+type: Opaque
+```
+
+
+
 The `queues` section in `values.yaml` allows to add custom queues to the broker at install time. For example, this setup:
 
 ```
@@ -143,10 +215,10 @@ queues:
 would result in this rendered section inside `broker.xml`:
 
 ```
-            <security-setting match="demoQueue">
+           <security-setting match="demoQueue">
              <permission type="consume" roles="admin,user," />
              <permission type="browse" roles="admin,user," />
              <permission type="send" roles="admin,user," />
              <permission type="manage" roles="admin," />
-             </security-setting>
+           </security-setting>
 ```

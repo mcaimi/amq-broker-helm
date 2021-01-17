@@ -57,6 +57,15 @@ templates:
   app_secret: "{{ .Values.application.name }}-secret"
   pvc_name: "{{ .Values.application.name}}-persistent-volume"
 
+security:
+  enabled: true
+  # Names of additional secrets to mount into configuration folder.
+  secrets: []
+  createSecret: true
+  jaasUsers:
+    # Secret key entry name for Username password properties file. Override when files is provided by existing Secret.
+    key: artemis-users.properties
+
 admin:
   user: admin
   password: password
