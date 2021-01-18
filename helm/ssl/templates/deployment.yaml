@@ -120,5 +120,11 @@ spec:
                 path: launch.sh
             defaultMode: 0550
         - name: broker-config-volume
-          configMap:
-            name: {{ tpl .Values.templates.config_cm . }}
+          projected:
+            sources:
+            - configMap:
+                name: {{ tpl .Values.templates.config_cm . }}
+            {{- range .Values.security.secrets }}
+            - secret:
+                name: {{ . }}
+            {{- end }}
