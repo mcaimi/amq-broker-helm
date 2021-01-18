@@ -42,7 +42,7 @@ parameters:
   amq_protocols: "openwire,amq,stomp,mqtt,hornetq,core"
   amq_admin_role: "admin"
   amq_broker_name: "broker"
-  amq_global_max_size: "100 gb"
+  amq_global_max_size: "200 mb"
   amq_require_login: False
   amq_extra_args: ""
   amq_anycast_prefix: "jmx.queue."
