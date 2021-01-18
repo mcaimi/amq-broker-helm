@@ -187,8 +187,6 @@ stringData:
 type: Opaque
 ```
 
-
-
 The `queues` section in `values.yaml` allows to add custom queues to the broker at install time. For example, this setup:
 
 ```
