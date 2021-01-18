@@ -23,7 +23,6 @@ This chart will deploy a basic ssl-enabled broker with no persistence.
 | parameters.amq_extra_args        | Extra arguments for broker creation  | `` |
 | parameters.amq_anycast_prefix    | Anycast prefix applied to the multiplexed protocol port 61616   | `jmx.queue.` |
 | parameters.amq_multicast_prefix  | Multicast prefix applied to the multiplexed protocol port 61616   | `jmx.topic.` |
-| parameters.imagestream_namespace | Namespace in which the ImageStreams for Red Hat Middleware images are installed. These ImageStreams are normally installed in the openshift namespace. You should only need to modify this if you've installed the ImageStreams in a different namespace/project.| `openshift` |
 | parameters.amq_enable_metrics_plugin | Whether to enable artemis metrics plugin | `False` |
 | parameters.amq_journal_type      | Journal type to use; aio or nio supported | `nio` |
 | templates.service                | Template for service name | See values.yaml |

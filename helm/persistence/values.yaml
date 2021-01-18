@@ -1,6 +1,5 @@
 application:
   name: amq-broker-persistence
-  rolloutTrigger: ConfigChange
   amq_broker_version: 7.7
   amq_broker_image: registry.redhat.io/amq7/amq-broker
   pullPolicy: IfNotPresent
@@ -42,7 +41,6 @@ parameters:
   amq_extra_args: ""
   amq_anycast_prefix: "jmx.queue."
   amq_multicast_prefix: "jmx.topic."
-  imagestream_namespace: "openshift"
   amq_enable_metrics_plugin: False
   amq_journal_type: "nio"
   amq_data_dir: "/opt/amq/data"

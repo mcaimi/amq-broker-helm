@@ -53,7 +53,6 @@ parameters:
   amq_extra_args: ""
   amq_anycast_prefix: "jmx.queue."
   amq_multicast_prefix: "jmx.topic."
-  imagestream_namespace: "openshift"
   amq_enable_metrics_plugin: False
   amq_journal_type: "nio"
   amq_data_dir: "/opt/amq/data"
