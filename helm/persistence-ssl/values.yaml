@@ -67,6 +67,7 @@ parameters:
   amq_journal_type: "nio"
   ssl_provider: "jdk" # alternative is openssl
   amq_data_dir: "/opt/amq/data"
+  amq_force_addresses_cleanup: True # if true remove all queues that are not declared here upon chart update
 
 templates:
   service: "{{ .Values.application.name }}-svc"
