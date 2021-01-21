@@ -53,6 +53,7 @@ parameters:
   amq_data_dir_logging: True
   amq_allow_anonymous: False
   amq_clustered: True
+  amq_force_addresses_cleanup: True # if true remove all queues that are not declared here upon chart update
 
 templates:
   service: "{{ .Values.application.name }}-svc-headless"
