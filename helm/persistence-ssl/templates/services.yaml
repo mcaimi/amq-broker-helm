@@ -1,21 +1,27 @@
 {{- $application_name := .Values.application.name }}
 {{- $svc_name := tpl .Values.templates.service . }}
 {{- $dc_name := tpl .Values.templates.deployment . }}
-
-{{- range .Values.service }}
 ---
 apiVersion: v1
 kind: Service
 metadata:
   annotations:
-    description: {{ .description }}
+    description: The broker's headless, non load balanced service
   labels:
     application: {{ $application_name }}
-  name: {{ $svc_name }}-{{ .name }}
+    app: {{ $application_name }}
+  name: {{ $svc_name }}
 spec:
+  clusterIP: None
+  type: ClusterIP
+  publishNotReadyAddresses: true
   ports:
+  {{- range .Values.service }}
   - port: {{ .port }}
+    name: {{ .name }}
+    protocol: {{ .protocol }}
     targetPort: {{ .port }}
+  {{- end }}
   selector:
     deployment: {{ $dc_name }}
-{{- end }}
+

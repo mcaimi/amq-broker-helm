@@ -1,18 +1,18 @@
+{{- $svc_name := tpl .Values.templates.service . }}
 ---
 apiVersion: apps/v1
-kind: Deployment
+kind: StatefulSet
 metadata:
   labels:
     application: {{ .Values.application.name }}
   name: {{ tpl .Values.templates.deployment . }}
 spec:
   replicas: 1
-  revisionHistoryLimit: 2
   selector:
     matchLabels:
       application: {{ .Values.application.name }}
-  strategy:
-    type: Recreate
+  replicas: 1
+  serviceName: {{ $svc_name }}
   template:
     metadata:
       # trigger deployments on config map changes
@@ -41,12 +41,30 @@ spec:
           value: "{{ .Values.parameters.amq_broker_name }}"
         - name: AMQ_TRANSPORTS
           value: "{{ .Values.parameters.amq_protocols }}"
+        - name: AMQ_KEYSTORE_TRUSTSTORE_DIR
+          value: /etc/amq-secret-volume
+        - name: AMQ_TRUSTSTORE
+          value: {{ .Values.tls.truststore }}
+        - name: AMQ_TRUSTSTORE_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: {{ tpl .Values.templates.app_certificates . }}
+              key: AMQ_TRUSTSTORE_PASSWORD
+        - name: AMQ_KEYSTORE
+          value: {{ .Values.tls.keystore }}
+        - name: AMQ_KEYSTORE_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: {{ tpl .Values.templates.app_certificates . }}
+              key: AMQ_KEYSTORE_PASSWORD
+        - name: AMQ_SSL_PROVIDER
+          value: {{ tpl .Values.parameters.ssl_provider . }}
         - name: AMQ_GLOBAL_MAX_SIZE
           value: "{{ .Values.parameters.amq_global_max_size }}"
-        - name: AMQ_DATA_DIR
-          value: "{{ .Values.parameters.amq_data_dir }}"
         - name: AMQ_REQUIRE_LOGIN
           value: "{{ .Values.parameters.amq_require_login }}"
+        - name: AMQ_DATA_DIR
+          value: "{{ .Values.parameters.amq_data_dir }}"
         - name: AMQ_EXTRA_ARGS
           value: {{ if .Values.parameters.amq_extra_args }} "{{ .Values.parameters.amq_extra_args }}" {{ else }} "" {{ end }}
         - name: AMQ_ANYCAST_PREFIX
@@ -84,17 +102,29 @@ spec:
             mountPath: /opt/amq/bin/configure_custom_config.sh
             subPath: configure_custom_config.sh
             readOnly: true
+          - name: broker-config-script-custom
+            mountPath: /opt/amq/bin/launch.sh
+            subPath: launch.sh
+            readOnly: true
           - name: broker-config-volume
             mountPath: "/opt/amq/conf"
             readOnly: true
+          - mountPath: /etc/amq-secret-volume
+            name: broker-secret-volume
+            readOnly: true
       terminationGracePeriodSeconds: 60
       volumes:
+        - name: broker-secret-volume
+          secret:
+            secretName: {{ tpl .Values.templates.app_certificates . }}
         - name: broker-config-script-custom
           configMap:
             name: {{ tpl .Values.templates.override_cm . }}
             items:
               - key: configure_custom_config.sh
                 path: configure_custom_config.sh
+              - key: launch.sh
+                path: launch.sh
             defaultMode: 0550
         - name: broker-config-volume
           projected:
@@ -105,6 +135,11 @@ spec:
             - secret:
                 name: {{ . }}
             {{- end }}
-        - name: {{ tpl .Values.templates.pvc_name . }}
-          persistentVolumeClaim:
-            claimName: {{ tpl .Values.templates.pvc_name . }}
+  volumeClaimTemplates:
+  - metadata:
+      name: {{ tpl .Values.templates.pvc_name . }}
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      resources:
+        requests:
+          storage: {{ .Values.application.volume_capacity }}
