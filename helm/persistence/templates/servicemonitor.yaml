@@ -1,0 +1,16 @@
+{{- if .Values.metrics.enabled }}
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: {{ .Values.application.name }}-monitor
+  labels:
+    prometheus: prometheus-app
+spec:
+  selector:
+    matchLabels:
+      application: {{ .Values.application.name }}
+  endpoints:
+    - targetPort: {{ .Values.metrics.servicemonitor.port }}
+      path: /metrics/
+      interval: {{ .Values.metrics.servicemonitor.interval }}
+{{- end }}

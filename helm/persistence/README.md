@@ -41,6 +41,12 @@ This chart will deploy a basic broker with disk persistence and no SSL endpoint.
 | admin.roles                      | Array of role names to assign to admin | `[ admin ]` |
 | users                            | Array of additional users. Only used if security.createSecret is `true` else users are expected to be defined in secret. | [] |
 | queues                           | Array of queues to create. | [] |
+| metrics.enabled                  | Enable metrics in AMQ and let Prometheus collect metrics using ServiceMonitor | `false` |
+| metrics.jvm_memory               | Enable JVM memory metrics | `true` |
+| metrics.jvm_gc                   | Enable JVM garbage collection statistics in metrics | `false` |
+| metrics.jvm_threads              | Enable JVM Thread statistics | `false` |
+| metrics.servicemonitor.port      | Collect metrics from this port. Default is the management port.  | `8161` |
+| metrics.servicemonitor.interval  | Metrics are collected with fixed interval.  | `20s` |
 
 ## INSTALLATION
 
