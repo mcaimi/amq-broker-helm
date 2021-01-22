@@ -4,6 +4,7 @@ This chart will deploy a basic ssl-enabled broker with no persistence.
 
 |NAME                              | DESCRIPTION                                              | DEFAULT VALUE |
 |----------------------------------|----------------------------------------------------------|----------------|
+| kind                             | Deploy broker as Deployment or StatefulSet               | `Deployment` |
 | application.name                 | The name for the application.                            | `amq-broker-persistence` |
 | application.amq_broker_version   | Broker Image tag                                         | `7.7` |
 | application.amq_broker_image     | Broker Image name                                        | `registry.redhat.io/amq7/amq-broker` |
