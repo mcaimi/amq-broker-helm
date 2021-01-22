@@ -12,7 +12,9 @@ metadata:
     app: {{ $application_name }}
   name: {{ $svc_name }}
 spec:
+  {{- if eq .Values.kind "StatefulSet" }}
   clusterIP: None
+  {{- end }}
   type: ClusterIP
   publishNotReadyAddresses: true
   ports:
