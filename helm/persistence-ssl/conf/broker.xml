@@ -157,9 +157,13 @@
          </address>
        {{- range .Values.queues.addresses }}
          <address name="{{ .name }}">
-        {{- if and ( .type ) (eq .type "multicast") }}
+         {{- $isMulticast := "" }}
+         {{- if ( .type ) }}{{- if eq .type "multicast" }}
+             {{- $isMulticast = print "true" }}
+         {{- end }}{{- end }}
+         {{- if $isMulticast }}
            <multicast/>
-        {{- else }}
+         {{- else }}
            <anycast>
              <queue name="{{ .name }}" />
            </anycast>
