@@ -1,7 +1,6 @@
-{{- if eq .Values.kind "StatefulSet" }}
-{{- $svc_name := tpl .Values.templates.service . }}
+{{- if eq .Values.kind "Deployment" }}
 apiVersion: apps/v1
-kind: StatefulSet
+kind: Deployment
 metadata:
   labels:
     application: {{ .Values.application.name }}
@@ -12,7 +11,8 @@ spec:
   selector:
     matchLabels:
       application: {{ .Values.application.name }}
-  serviceName: {{ tpl .Values.templates.service . }}
+  strategy:
+    type: Recreate
   template:
     metadata:
       # trigger deployments on config map changes
@@ -41,12 +41,7 @@ spec:
             - secret:
                 name: {{ . }}
             {{- end }}
-  volumeClaimTemplates:
-  - metadata:
-      name: {{ tpl .Values.templates.pvc_name . }}
-    spec:
-      accessModes: [ "ReadWriteOnce" ]
-      resources:
-        requests:
-          storage: {{ .Values.application.volume_capacity }}
+        - name: {{ tpl .Values.templates.pvc_name . }}
+          persistentVolumeClaim:
+            claimName: {{ tpl .Values.templates.pvc_name . }}
 {{- end }}
