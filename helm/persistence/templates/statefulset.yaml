@@ -7,12 +7,12 @@ metadata:
     application: {{ .Values.application.name }}
   name: {{ tpl .Values.templates.deployment . }}
 spec:
-  replicas: 1
   revisionHistoryLimit: 2
   selector:
     matchLabels:
       application: {{ .Values.application.name }}
-  serviceName: {{ tpl .Values.templates.service . }}
+  replicas: 1
+  serviceName: {{ $svc_name }}
   template:
     metadata:
       # trigger deployments on config map changes
