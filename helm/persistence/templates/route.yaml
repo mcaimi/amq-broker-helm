@@ -1,15 +1,25 @@
---- 
+{{- $svc_name := tpl .Values.templates.service . }}
+{{- $app_name := tpl .Values.application.name . }}
+{{- $route_name := tpl .Values.templates.route . }}
+{{- range .Values.service }}
+{{- $nm := toString .name }}
+{{- if eq $nm "jolokia" }}
+---
 apiVersion: route.openshift.io/v1
 kind: Route
 metadata:
   labels:
-    application: {{ .Values.application.name }}
-  name: {{ tpl .Values.templates.route . }}-console
+    application: {{ $app_name }}
+  name: {{ $route_name }}-console
 spec:
   to:
     kind: Service
-    name: {{ tpl .Values.templates.service .}}-jolokia
+    name: {{ $svc_name }}
+  port:
+    targetPort: {{ .port }}
   tls:
     termination: edge
     insecureEdgeTerminationPolicy: Redirect
   wildcardPolicy: None
+{{- end }}
+{{- end }}

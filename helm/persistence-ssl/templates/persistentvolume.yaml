@@ -1,4 +1,4 @@
----
+{{- if eq .Values.kind "Deployment" }}
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
@@ -9,3 +9,4 @@ spec:
   resources:
     requests:
       storage: {{ .Values.application.volume_capacity }}
+{{- end }}
