@@ -108,7 +108,15 @@ users: []
 #    roles: 
 #      - user
 #
-queues: []
+queues:
+  defaults:
+    maxDeliveryAttempts: 3
+    redeliveryDelayMultiplier: 1
+    redeliveryDelay: 5000
+    maxSizeBytes: "100 mb"
+    addressFullPolicy: "PAGE"
+    messageCounterHistoryDayLimit: 10
+  addresses: []
 #  - name: QUEUE_1
 #    type: anycast # for queues, choose 'multicast' for topics
 #    dlq_address: QUEUE_1_DLQ

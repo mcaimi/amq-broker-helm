@@ -55,7 +55,7 @@
       </acceptors>
       <security-enabled>{{ .Values.security.enabled }}</security-enabled>
       <security-settings>
-      {{- range .Values.queues }}
+      {{- range .Values.queues.addresses }}
         <security-setting match="{{ .name }}">
         {{- range .permissions }}
         <permission type="{{ .grant }}" roles="{{- range $i, $el := .roles }}{{if $i}},{{end}}{{$el}}{{- end -}}" />
@@ -91,18 +91,19 @@
          <address-setting match="#">
             <dead-letter-address>DLQ</dead-letter-address>
             <expiry-address>ExpiryQueue</expiry-address>
-            <max-delivery-attempts>3</max-delivery-attempts>
-            <redelivery-delay>5000</redelivery-delay>
+            <max-delivery-attempts>{{ .Values.queues.defaults.maxDeliveryAttempts }}</max-delivery-attempts>
+            <redelivery-delay>{{ .Values.queues.defaults.redeliveryDelay }}</redelivery-delay>
+            <redelivery-delay-multiplier>{{ .Values.queues.defaults.redeliveryDelayMultiplier }}</redelivery-delay-multiplier>
             <!-- with -1 only the global-max-size is in use for limiting -->
-            <max-size-bytes>-1</max-size-bytes>
-            <message-counter-history-day-limit>10</message-counter-history-day-limit>
-            <address-full-policy>PAGE</address-full-policy>
+            <max-size-bytes>{{ .Values.queues.defaults.maxSizeBytes }}</max-size-bytes>
+            <message-counter-history-day-limit>{{ .Values.queues.defaults.messageCounterHistoryDayLimit }}</message-counter-history-day-limit>
+            <address-full-policy>{{ .Values.queues.defaults.addressFullPolicy }}</address-full-policy>
             {{- if .Values.parameters.amq_force_addresses_cleanup }}
             <config-delete-addresses>FORCE</config-delete-addresses>
             <config-delete-queues>FORCE</config-delete-queues>
             {{- end }}
          </address-setting>
-        {{- range .Values.queues }}
+        {{- range .Values.queues.addresses }}
           <address-setting match="{{ .name }}">
           {{- if .dlq_address }}
             <dead-letter-address>{{ .dlq_address }}</dead-letter-address>
@@ -110,20 +111,35 @@
           {{- if .expiry_address }}
             <expiry-address>{{ .expiry_address }}</expiry-address>
           {{- end }}
-          {{- if .max_delivery_attempts }}
-            <max-delivery-attempts>{{ .max_delivery_attempts }}</max-delivery-attempts>
+          {{- if .maxDeliveryAttempts }}
+            <max-delivery-attempts>{{ .maxDeliveryAttempts }}</max-delivery-attempts>
+          {{- else }}
+            <max-delivery-attempts>{{ $.Values.queues.defaults.maxDeliveryAttempts }}</max-delivery-attempts>
           {{- end }}
-          {{- if .redelivery_delay }}
-            <redelivery-delay>{{ .redelivery_delay }}</redelivery-delay>
+          {{- if .redeliveryDelay }}
+            <redelivery-delay>{{ .redeliveryDelay }}</redelivery-delay>
+          {{- else }}
+            <redelivery-delay>{{ $.Values.queues.defaults.redeliveryDelay }}</redelivery-delay>
           {{- end }}
-          {{- if .max_size_bytes }}
-            <max-size-bytes>{{ .max_size_bytes }}</max-size-bytes>
+          {{- if .redeliveryDelayMultiplier }}
+            <redelivery-delay>{{ .redeliveryDelayMultiplier }}</redelivery-delay>
+          {{- else }}
+            <redelivery-delay>{{ $.Values.queues.defaults.redeliveryDelayMultiplier }}</redelivery-delay>
           {{- end }}
-          {{- if .message_counter_history_day_limit }}
-            <message-counter-history-day-limit>{{ .message_counter_history_day_limit }}</message-counter-history-day-limit>
+          {{- if .maxSizeBytes }}
+            <max-size-bytes>{{ .maxSizeBytes }}</max-size-bytes>
+          {{- else }}
+            <max-size-bytes>{{ $.Values.queues.defaults.maxSizeBytes }}</max-size-bytes>
           {{- end }}
-          {{- if .address_full_policy }}
-            <address-full-policy>{{ .address_full_policy }}</address-full-policy>
+          {{- if .messageCounterHistoryDayLimit }}
+            <message-counter-history-day-limit>{{ .messageCounterHistoryDayLimit }}</message-counter-history-day-limit>
+          {{- else }}
+            <message-counter-history-day-limit>{{ $.Values.queues.defaults.messageCounterHistoryDayLimit }}</message-counter-history-day-limit>
+          {{- end }}
+          {{- if .addressFullPolicy }}
+            <address-full-policy>{{ .addressFullPolicy }}</address-full-policy>
+          {{- else }}
+            <address-full-policy>{{ $.Values.queues.defaults.addressFullPolicy }}</address-full-policy>
           {{- end }}
           </address-setting>
         {{- end }}
@@ -139,7 +155,7 @@
                <queue name="ExpiryQueue" />
             </anycast>
          </address>
-       {{- range .Values.queues }}
+       {{- range .Values.queues.addresses }}
          <address name="{{ .name }}">
         {{- if and ( .type ) (eq .type "multicast") }}
            <multicast/>
