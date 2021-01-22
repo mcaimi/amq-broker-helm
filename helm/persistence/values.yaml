@@ -1,3 +1,6 @@
+# Deploy broker as Deployment or StatefulSet
+kind: Deployment
+
 application:
   name: amq-broker-persistence
   amq_broker_version: 7.7
@@ -44,6 +47,7 @@ parameters:
   amq_enable_metrics_plugin: False
   amq_journal_type: "nio"
   amq_data_dir: "/opt/amq/data"
+  amq_force_addresses_cleanup: True # if true remove all queues that are not declared here upon chart update
 
 templates:
   service: "{{ .Values.application.name }}-svc"

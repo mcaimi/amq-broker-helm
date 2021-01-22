@@ -1,0 +1,12 @@
+{{- if eq .Values.kind "Deployment" }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ tpl .Values.templates.pvc_name . }}
+spec:
+  accessModes:
+    - "ReadWriteOnce"
+  resources:
+    requests:
+      storage: {{ .Values.application.volume_capacity }}
+{{- end }}
