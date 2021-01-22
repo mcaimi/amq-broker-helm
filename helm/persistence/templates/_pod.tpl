@@ -64,4 +64,26 @@ containers:
       mountPath: "/opt/amq/conf"
       readOnly: true
 terminationGracePeriodSeconds: 60
+volumes:
+  - name: broker-config-script-custom
+    configMap:
+      name: {{ tpl .Values.templates.override_cm . }}
+      items:
+        - key: configure_custom_config.sh
+          path: configure_custom_config.sh
+      defaultMode: 0550
+  - name: broker-config-volume
+    projected:
+      sources:
+        - configMap:
+            name: {{ tpl .Values.templates.config_cm . }}
+        {{- range .Values.security.secrets }}
+        - secret:
+            name: {{ . }}
+        {{- end }}
+  {{- if eq .Values.kind "Deployment" }}
+  - name: {{ tpl .Values.templates.pvc_name . }}
+    persistentVolumeClaim:
+      claimName: {{ tpl .Values.templates.pvc_name . }}
+  {{- end }}
 {{- end }}
