@@ -66,7 +66,6 @@ parameters:
   amq_extra_args: ""
   amq_anycast_prefix: "jmx.queue."
   amq_multicast_prefix: "jmx.topic."
-  amq_enable_metrics_plugin: False
   amq_journal_type: "nio"
   ssl_provider: "jdk" # alternative is openssl
   amq_data_dir: "/opt/amq/data"
@@ -146,3 +145,13 @@ queues:
 #      #  roles:
 #      #    - admin
 #      #    - user
+
+  # Add Metrics and Prometheus ServiceMonitor for collecting metrics
+metrics:
+  enabled: false
+  jvm_memory: true
+  jvm_gc: false
+  jvm_threads: false
+  servicemonitor:
+    port: 8161
+    interval: 20s
