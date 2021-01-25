@@ -1,6 +1,6 @@
 application:
   name: amq-broker-persistence
-  amq_broker_version: 7.7
+  amq_broker_version: 7.8
   amq_broker_image: registry.redhat.io/amq7/amq-broker
   pullPolicy: IfNotPresent
   volume_capacity: 1G
