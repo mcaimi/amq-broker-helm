@@ -48,7 +48,7 @@ containers:
   - name: AMQ_MULTICAST_PREFIX
     value: {{ if .Values.parameters.amq_multicast_prefix }} "{{ .Values.parameters.amq_multicast_prefix }}" {{ else }} "jms.topic." {{ end }}
   - name: AMQ_ENABLE_METRICS_PLUGIN
-    value: "{{ .Values.parameters.amq_enable_metrics_plugin }}"
+    value: {{ .Values.metrics.enabled | quote }}
   - name: AMQ_JOURNAL_TYPE
     value: "{{ .Values.parameters.amq_journal_type }}"
   - name: BROKER_XML
