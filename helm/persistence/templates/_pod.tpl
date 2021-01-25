@@ -39,6 +39,10 @@ containers:
         name: {{ tpl .Values.templates.config_cm . }}
         key: broker.xml
   image: {{ tpl .Values.templates.broker_image . }}
+  {{- with .Values.resources }}
+  resources:
+  {{- toYaml . | nindent 4 -}}
+  {{- end }}
   imagePullPolicy: {{ .Values.application.pullPolicy }}
   readinessProbe:
     exec:

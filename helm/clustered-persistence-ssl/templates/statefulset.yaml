@@ -239,6 +239,10 @@ spec:
             - "-c"
             - "/opt/amq/bin/readinessProbe.sh"
         image: "{{ tpl .Values.templates.broker_image . }}"
+        {{- with .Values.resources }}
+        resources:
+        {{- toYaml . | nindent 10 -}}
+        {{- end }}
         name: {{ tpl .Values.templates.deployment . }}
         ports:
         {{- range .Values.service }}
