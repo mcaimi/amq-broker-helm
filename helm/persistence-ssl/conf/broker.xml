@@ -122,9 +122,9 @@
             <redelivery-delay>{{ $.Values.queues.defaults.redeliveryDelay }}</redelivery-delay>
           {{- end }}
           {{- if .redeliveryDelayMultiplier }}
-            <redelivery-delay>{{ .redeliveryDelayMultiplier }}</redelivery-delay>
+            <redelivery-delay-multiplier>{{ .redeliveryDelayMultiplier }}</redelivery-delay-multiplier>
           {{- else }}
-            <redelivery-delay>{{ $.Values.queues.defaults.redeliveryDelayMultiplier }}</redelivery-delay>
+            <redelivery-delay-multiplier>{{ $.Values.queues.defaults.redeliveryDelayMultiplier }}</redelivery-delay-multiplier>
           {{- end }}
           {{- if .maxSizeBytes }}
             <max-size-bytes>{{ .maxSizeBytes }}</max-size-bytes>
