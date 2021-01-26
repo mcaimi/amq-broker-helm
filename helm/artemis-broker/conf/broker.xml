@@ -3,13 +3,23 @@
 <configuration xmlns="urn:activemq" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="urn:activemq /schema/artemis-configuration.xsd">
    <core xmlns="urn:activemq:core" xsi:schemaLocation="urn:activemq:core ">
       <name>${AMQ_NAME}</name>
+      {{- if .Values.application.persistent }}
       <persistence-enabled>true</persistence-enabled>
+      <!-- this could be ASYNCIO, MAPPED, NIO           ASYNCIO: Linux Libaio           MAPPED: mmap files           NIO: Plain Java Files       -->
+      <journal-type>NIO</journal-type>
+      <paging-directory>${AMQ_DATA_DIR}/paging</paging-directory>
+      <bindings-directory>${AMQ_DATA_DIR}/bindings</bindings-directory>
+      <journal-directory>${AMQ_DATA_DIR}/journal</journal-directory>
+      <large-messages-directory>${AMQ_DATA_DIR}/large-messages</large-messages-directory>
+      {{- else }}
+      <persistence-enabled>false</persistence-enabled>
       <!-- this could be ASYNCIO, MAPPED, NIO           ASYNCIO: Linux Libaio           MAPPED: mmap files           NIO: Plain Java Files       -->
       <journal-type>NIO</journal-type>
       <paging-directory>./data/paging</paging-directory>
       <bindings-directory>./data/bindings</bindings-directory>
       <journal-directory>./data/journal</journal-directory>
       <large-messages-directory>./data/large-messages</large-messages-directory>
+      {{- end }}
       <journal-datasync>true</journal-datasync>
       <journal-min-files>2</journal-min-files>
       <journal-pool-files>10</journal-pool-files>
@@ -43,21 +53,22 @@
          <!-- amqpCredits: The number of credits sent to AMQP producers -->
          <!-- amqpLowCredits: The server will send the # credits specified at amqpCredits at this low mark -->
          <!-- Acceptor for every supported protocol -->
-        <acceptor name="artemis">tcp://${BROKER_IP}:61616?tcpSendBufferSize=1048576;tcpReceiveBufferSize=1048576;protocols=CORE,AMQP,STOMP,HORNETQ,MQTT,OPENWIRE;useEpoll=true;amqpCredits=1000;amqpLowCredits=300;anycastPrefix=${AMQ_ANYCAST_PREFIX};multicastPrefix=${AMQ_MULTICAST_PREFIX}</acceptor>
-         <!-- AMQP Acceptor.  Listens on default AMQP port for AMQP traffic.-->
-         <acceptor name="amqp">tcp://${BROKER_IP}:5672?tcpSendBufferSize=1048576;tcpReceiveBufferSize=1048576;protocols=AMQP;useEpoll=true;amqpCredits=1000;amqpMinCredits=300</acceptor>
-         <!-- STOMP Acceptor. -->
-         <acceptor name="stomp">tcp://${BROKER_IP}:61613?tcpSendBufferSize=1048576;tcpReceiveBufferSize=1048576;protocols=STOMP;useEpoll=true</acceptor>
-         <!-- HornetQ Compatibility Acceptor.  Enables HornetQ Core and STOMP for legacy HornetQ clients. -->
-         <acceptor name="hornetq">tcp://${BROKER_IP}:5445?protocols=HORNETQ,STOMP;useEpoll=true</acceptor>
-         <!-- MQTT Acceptor -->
-         <acceptor name="mqtt">tcp://${BROKER_IP}:1883?tcpSendBufferSize=1048576;tcpReceiveBufferSize=1048576;protocols=MQTT;useEpoll=true</acceptor>
+        {{- if .Values.parameters.tls_enabled }}
+        {{- range .Values.service.acceptors }}
+        <acceptor name="{{ .name }}">tcp://${BROKER_IP}:{{ .port }}?tcpSendBufferSize=1048576;tcpReceiveBufferSize=1048576;protocols={{ .amq_protocols }};useEpoll=true;amqpCredits=1000;amqpLowCredits=300;anycastPrefix=${AMQ_ANYCAST_PREFIX};multicastPrefix=${AMQ_MULTICAST_PREFIX};connectionsAllowed={{ .max_connections }};sslEnabled=true;keyStorePath=${AMQ_KEYSTORE_TRUSTSTORE_PATH}/{{ $.Values.tls.keystore }};keyStorePassword=${AMQ_KEYSTORE_PASSWORD};sslProvider={{ $.Values.parameters.ssl_provider }}</acceptor>
+        {{- end }}
+        {{- else }}
+        {{- range .Values.service.acceptors }}
+        <acceptor name="{{ .name }}">tcp://${BROKER_IP}:{{ .port }}?tcpSendBufferSize=1048576;tcpReceiveBufferSize=1048576;protocols={{ .amq_protocols }};useEpoll=true;amqpCredits=1000;amqpLowCredits=300;anycastPrefix=${AMQ_ANYCAST_PREFIX};multicastPrefix=${AMQ_MULTICAST_PREFIX}</acceptor>
+        {{- end }}
+        {{- end }}
       </acceptors>
+      <security-enabled>{{ .Values.security.enabled }}</security-enabled>
       <security-settings>
-      {{- range .Values.queues }}
+      {{- range .Values.queues.addresses }}
         <security-setting match="{{ .name }}">
         {{- range .permissions }}
-         <permission type="{{ .grant }}" roles="{{- range $i, $el := .roles }}{{if $i}},{{end}}{{$el}}{{- end -}}" />
+        <permission type="{{ .grant }}" roles="{{- range $i, $el := .roles }}{{if $i}},{{end}}{{$el}}{{- end -}}" />
         {{- end }}
          </security-setting>
       {{- end }}
@@ -90,14 +101,19 @@
          <address-setting match="#">
             <dead-letter-address>DLQ</dead-letter-address>
             <expiry-address>ExpiryQueue</expiry-address>
-            <max-delivery-attempts>3</max-delivery-attempts>
-            <redelivery-delay>5000</redelivery-delay>
+            <max-delivery-attempts>{{ .Values.queues.defaults.maxDeliveryAttempts }}</max-delivery-attempts>
+            <redelivery-delay>{{ .Values.queues.defaults.redeliveryDelay }}</redelivery-delay>
+            <redelivery-delay-multiplier>{{ .Values.queues.defaults.redeliveryDelayMultiplier }}</redelivery-delay-multiplier>
             <!-- with -1 only the global-max-size is in use for limiting -->
-            <max-size-bytes>-1</max-size-bytes>
-            <message-counter-history-day-limit>10</message-counter-history-day-limit>
-            <address-full-policy>PAGE</address-full-policy>
+            <max-size-bytes>{{ .Values.queues.defaults.maxSizeBytes }}</max-size-bytes>
+            <message-counter-history-day-limit>{{ .Values.queues.defaults.messageCounterHistoryDayLimit }}</message-counter-history-day-limit>
+            <address-full-policy>{{ .Values.queues.defaults.addressFullPolicy }}</address-full-policy>
+            {{- if .Values.parameters.amq_force_addresses_cleanup }}
+            <config-delete-addresses>FORCE</config-delete-addresses>
+            <config-delete-queues>FORCE</config-delete-queues>
+            {{- end }}
          </address-setting>
-        {{- range .Values.queues }}
+        {{- range .Values.queues.addresses }}
           <address-setting match="{{ .name }}">
           {{- if .dlq_address }}
             <dead-letter-address>{{ .dlq_address }}</dead-letter-address>
@@ -105,20 +121,35 @@
           {{- if .expiry_address }}
             <expiry-address>{{ .expiry_address }}</expiry-address>
           {{- end }}
-          {{- if .max_delivery_attempts }}
-            <max-delivery-attempts>{{ .max_delivery_attempts }}</max-delivery-attempts>
+          {{- if .maxDeliveryAttempts }}
+            <max-delivery-attempts>{{ .maxDeliveryAttempts }}</max-delivery-attempts>
+          {{- else }}
+            <max-delivery-attempts>{{ $.Values.queues.defaults.maxDeliveryAttempts }}</max-delivery-attempts>
           {{- end }}
-          {{- if .redelivery_delay }}
-            <redelivery-delay>{{ .redelivery_delay }}</redelivery-delay>
+          {{- if .redeliveryDelay }}
+            <redelivery-delay>{{ .redeliveryDelay }}</redelivery-delay>
+          {{- else }}
+            <redelivery-delay>{{ $.Values.queues.defaults.redeliveryDelay }}</redelivery-delay>
           {{- end }}
-          {{- if .max_size_bytes }}
-            <max-size-bytes>{{ .max_size_bytes }}</max-size-bytes>
+          {{- if .redeliveryDelayMultiplier }}
+            <redelivery-delay-multiplier>{{ .redeliveryDelayMultiplier }}</redelivery-delay-multiplier>
+          {{- else }}
+            <redelivery-delay-multiplier>{{ $.Values.queues.defaults.redeliveryDelayMultiplier }}</redelivery-delay-multiplier>
           {{- end }}
-          {{- if .message_counter_history_day_limit }}
-            <message-counter-history-day-limit>{{ .message_counter_history_day_limit }}</message-counter-history-day-limit>
+          {{- if .maxSizeBytes }}
+            <max-size-bytes>{{ .maxSizeBytes }}</max-size-bytes>
+          {{- else }}
+            <max-size-bytes>{{ $.Values.queues.defaults.maxSizeBytes }}</max-size-bytes>
           {{- end }}
-          {{- if .address_full_policy }}
-            <address-full-policy>{{ .address_full_policy }}</address-full-policy>
+          {{- if .messageCounterHistoryDayLimit }}
+            <message-counter-history-day-limit>{{ .messageCounterHistoryDayLimit }}</message-counter-history-day-limit>
+          {{- else }}
+            <message-counter-history-day-limit>{{ $.Values.queues.defaults.messageCounterHistoryDayLimit }}</message-counter-history-day-limit>
+          {{- end }}
+          {{- if .addressFullPolicy }}
+            <address-full-policy>{{ .addressFullPolicy }}</address-full-policy>
+          {{- else }}
+            <address-full-policy>{{ $.Values.queues.defaults.addressFullPolicy }}</address-full-policy>
           {{- end }}
           </address-setting>
         {{- end }}
@@ -134,11 +165,15 @@
                <queue name="ExpiryQueue" />
             </anycast>
          </address>
-       {{- range .Values.queues }}
+       {{- range .Values.queues.addresses }}
          <address name="{{ .name }}">
-        {{- if and ( .type ) (eq .type "multicast") }}
+         {{- $isMulticast := "" }}
+         {{- if ( .type ) }}{{- if eq .type "multicast" }}
+             {{- $isMulticast = print "true" }}
+         {{- end }}{{- end }}
+         {{- if $isMulticast }}
            <multicast/>
-        {{- else }}
+         {{- else }}
            <anycast>
              <queue name="{{ .name }}" />
            </anycast>
@@ -160,5 +195,13 @@
          {{- end }}
        {{- end }}
       </addresses>
+      {{- if .Values.metrics.enabled }}
+      <metrics>
+        <jvm-memory>{{ .Values.metrics.jvm_memory }}</jvm-memory>
+        <jvm-gc>{{ .Values.metrics.jvm_gc }}</jvm-gc>
+        <jvm-threads>{{ .Values.metrics.jvm_threads }}</jvm-threads>
+        <plugin class-name="org.apache.activemq.artemis.core.server.metrics.plugins.ArtemisPrometheusMetricsPlugin"/>
+      </metrics>
+      {{- end }}
    </core>
 </configuration>

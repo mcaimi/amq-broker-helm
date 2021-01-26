@@ -1,51 +1,35 @@
+# Deploy broker as Deployment or StatefulSet
+kind: Deployment
+
 application:
-  name: amq-broker-basic-ssl
+  name: amq-broker-persistence-ssl
   amq_broker_version: 7.8
   amq_broker_image: registry.redhat.io/amq7/amq-broker
   pullPolicy: IfNotPresent
+  persistent: true
+  volume_capacity: "1G"
 
 service:
-  - name: jolokia
-    description: "The Jolokia Management Console Service"
-    protocol: TCP
-    port: 8161
-  - name: amqp
-    description: "Plain AMQP protocol service endpoint"
-    protocol: TCP
-    port: 5672
-  - name: mqtt
-    description: "Plain MQTT protocol service endpoint"
-    protocol: TCP
-    port: 1883
-  - name: stomp
-    description: "Plain STOMP protocol service endpoint"
-    protocol: TCP
-    port: 61613
-  - name: multiplex
-    description: "Multiplexed protocol endpoint (CORE+All the others)"
-    protocol: TCP
-    port: 61616
-  - name: amqp-ssl
-    description: "AMQP SSL Service Endpoint"
-    protocol: TCP
-    port: 5671
-  - name: mqtt-ssl
-    description: "MQTT SSL Service Endpoint"
-    protocol: TCP
-    port: 8883
-  - name: stomp-ssl
-    description: "STOMP SSL Service Endpoint"
-    protocol: TCP
-    port: 61612
-  - name: multiplex-ssl
-    protocol: TCP
-    description: "Multiplexed SSL protocol endpoint (CORE+All the others)"
-    port: 61617
+  console:
+    - name: jolokia
+      description: "The Jolokia Management Console Service"
+      protocol: TCP
+      port: 8161
+  acceptors:
+    - name: multiplex
+      description: "Multiplexed protocol endpoint (CORE+All the others)"
+      protocol: TCP
+      port: 61616
+      amq_protocols: "CORE,AMQP,STOMP,HORNETQ,MQTT,OPENWIRE"
 
 nodeport:
-  port: 30001
-  service: multiplex-ssl
+  port: 30003
+  service: multiplex
   enabled: true
+
+passthrough_route:
+  enabled: false
+  service: multiplex
 
 tls:
   keystore: keystore.ks
@@ -54,6 +38,7 @@ tls:
   truststore_password: tspwd
 
 parameters:
+  tls_enabled: false
   amq_protocols: "openwire,amq,stomp,mqtt,hornetq,core"
   amq_admin_role: "admin"
   amq_broker_name: "broker"
@@ -62,9 +47,10 @@ parameters:
   amq_extra_args: ""
   amq_anycast_prefix: "jmx.queue."
   amq_multicast_prefix: "jmx.topic."
-  amq_enable_metrics_plugin: False
   amq_journal_type: "nio"
   ssl_provider: "jdk" # alternative is openssl
+  amq_data_dir: "/opt/amq/data"
+  amq_force_addresses_cleanup: True # if true remove all queues that are not declared here upon chart update
 
 templates:
   service: "{{ .Values.application.name }}-svc"
@@ -75,6 +61,13 @@ templates:
   config_cm: "{{ .Values.application.name }}-config-cm"
   app_secret: "{{ .Values.application.name }}-secret"
   app_certificates: "{{ .Values.application.name }}-certificates"
+  pvc_name: "{{ .Values.application.name }}-persistent-volume"
+
+admin:
+  user: admin
+  password: password
+  roles: 
+    - admin
 
 security:
   enabled: true
@@ -85,23 +78,25 @@ security:
     # Secret key entry name for Username password properties file. Override when files is provided by existing Secret.
     key: artemis-users.properties
 
-admin:
-  user: admin
-  password: password
-  roles: 
-    - admin
-
 users: []
 #  - name: demouser
 #    password: "demo"
-#    roles:
+#    roles: 
 #      - user
 #  - name: anotheruser
 #    password: "demo1"
-#    roles:
+#    roles: 
 #      - user
 #
-queues: []
+queues:
+  defaults:
+    maxDeliveryAttempts: 3
+    redeliveryDelayMultiplier: 1
+    redeliveryDelay: 5000
+    maxSizeBytes: "100 mb"
+    addressFullPolicy: "PAGE"
+    messageCounterHistoryDayLimit: 10
+  addresses: []
 #  - name: QUEUE_1
 #    type: anycast # for queues, choose 'multicast' for topics
 #    dlq_address: QUEUE_1_DLQ
@@ -131,6 +126,16 @@ queues: []
 #      #  roles:
 #      #    - admin
 #      #    - user
+
+# Add Metrics and Prometheus ServiceMonitor for collecting metrics
+metrics:
+  enabled: false
+  jvm_memory: true
+  jvm_gc: false
+  jvm_threads: false
+  servicemonitor:
+    port: 8161
+    interval: 20s
 
 # k8s resources
 resources: {}

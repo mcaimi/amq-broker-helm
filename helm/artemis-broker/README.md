@@ -1,20 +1,32 @@
-# SSL-ENABLED BROKER HELM CHART
+# NON-CLUSTERED AMQ BROKER HELM CHART
 
-This chart will deploy a basic ssl-enabled broker with no persistence.
+This chart handles the deployment of an AMQ broker without clustering enabled. These deployment flavors are supported:
+
+1. Standalone AMQ Broker
+2. Choice between `Deployment` and `StatefulSet`
+3. TLS optional
+4. Persistence is optional. (Needs a supported StorageClass)
+5. NodePorts and Passthrough Routes
+6. Optional Prometheus monitoring
 
 |NAME                              | DESCRIPTION                                              | DEFAULT VALUE |
 |----------------------------------|----------------------------------------------------------|----------------|
+| kind                             | Deploy broker as Deployment or StatefulSet               | `Deployment` |
 | application.name                 | The name for the application.                            | `amq-broker-persistence` |
 | application.amq_broker_version   | Broker Image tag                                         | `7.7` |
 | application.amq_broker_image     | Broker Image name                                        | `registry.redhat.io/amq7/amq-broker` |
 | application.pullPolicy           | Pull policy                                              | `IfNotPresent` |
-| service                          | Array of services ports and protocols                    | See values.yaml |
+| application.volume_capacity      | Size of persistent volume                                | `1G` |
+| service.console                  | Jolokia console port and configuration | See values.yaml |
+| service.acceptors                | Array of acceptors. Only the multiplex is exposed by default | See values.yaml |
 | tls.keystore                     | Name of the keystore file                                | See values.yaml |
 | tls.truststore                   | Name of the truststoreile                                | See values.yaml |
 | tls.keystore_password            | Password to unlock the keystore on container boot        | See values.yaml |
 | tls.truststore_password          | Password to unlock the truststore on container boot      | See values.yaml |
 | nodeport.enabled                 | Create node port to expose AMQ to clients outside of the cluster | `30002` |
 | nodeport.port                    | Node port number used when enabled | `30002` |
+| passthrough_route.enabled        | Create a passthrough route to allow inbound TCP/SNI connections to a TLS-enabled broker | `False` |
+| parameters.tls_enabled           | Enable or disable TLS support for acceptors | `false` |
 | parameters.amq_protocols         | Protocols to configure, separated by commas. Allowed values are: `openwire`, `amqp`, `stomp`, `mqtt` and `hornetq`. | `openwire,amqp,stomp,mqtt,hornetq` |
 | parameters.amq_broker_name       | Broker name (TODO is this used? Same as application.name ) | `broker` |
 | parameters.amq_admin_role        | Admin role | `admin` |
@@ -25,13 +37,15 @@ This chart will deploy a basic ssl-enabled broker with no persistence.
 | parameters.amq_multicast_prefix  | Multicast prefix applied to the multiplexed protocol port 61616   | `jmx.topic.` |
 | parameters.amq_enable_metrics_plugin | Whether to enable artemis metrics plugin | `False` |
 | parameters.amq_journal_type      | Journal type to use; aio or nio supported | `nio` |
+| parameters.amq_data_dir          | Directory for storing data | `/opt/amq/data` |
 | templates.service                | Template for service name | See values.yaml |
 | templates.deployment             | Template for deployment name | See values.yaml |
 | templates.route                  | Template for route name | See values.yaml |
 | templates.broker_image           | Template for image name | See values.yaml |
 | templates.override_cm            | Template for ConfigMap name containing overrides | See values.yaml |
-| templates.config_cm              | Template for ConfigMap name | See values.yaml |
+| templates.config_cm              | Template for ConfigMap nggame | See values.yaml |
 | templates.app_secret             | Template for name of a secret containing credential data such as users and passwords | See values.yaml |
+| templates.pvc_name               | Template for persistent volume name | See values.yaml |
 | security.enabled                 | Enabled security | `true` |
 | security.secrets                 | Array of names of additional secrets to mount into /opt/amq/conf  | [] |
 | security.createSecret            | Create secret with users and passwords. Disable when secrets is created outside of this chart. For example by ExternalSecret | `true` |
@@ -40,11 +54,67 @@ This chart will deploy a basic ssl-enabled broker with no persistence.
 | admin.password                   | Admin password. Optional. Only used if security.createSecret is `true` | `password` |
 | admin.roles                      | Array of role names to assign to admin | `[ admin ]` |
 | users                            | Array of additional users. Only used if security.createSecret is `true` else users are expected to be defined in secret. | [] |
-| queues                           | Array of queues to create. | [] |
+| queue.defaults                   | Default values for queues parameters | [] |
+| queue.addresses                  | Array of queues to create. | [] |
+| metrics.enabled                  | Enable metrics in AMQ and let Prometheus collect metrics using ServiceMonitor | `false` |
+| metrics.jvm_memory               | Enable JVM memory metrics | `true` |
+| metrics.jvm_gc                   | Enable JVM garbage collection statistics in metrics | `false` |
+| metrics.jvm_threads              | Enable JVM Thread statistics | `false` |
+| metrics.servicemonitor.port      | Collect metrics from this port. Default is the management port.  | `8161` |
+| metrics.servicemonitor.interval  | Metrics are collected with fixed interval.  | `20s` |
+| resources                        | Kubernetes limits and resources to attach to pod templates | See values.yaml |
 
 ## INSTALLATION
 
 The most basic deployment can be performed by following these steps:
+
+### Disk Persistence:
+
+Every deployment flavor (TLS and Non-TLS) can be made persistent by setting the `persitent` flag to `true`:
+
+```
+application:
+  [...]
+  volume_capacity: "1G"
+  persistent: true
+```
+
+### Non-TLS AMQ Brokers
+
+- Customize the application name in `values.yaml`:
+
+```
+application:
+  name: amq-broker-persistence-ssl
+  [...]
+  volume_capacity: "1G"
+```
+
+```
+parameters:
+  [...]
+  amq_data_dir: "/opt/amq/data"
+  tls_enabled: false
+  [...]
+```
+
+If needed, the broker can be consumed by clients running outside OCP by deploying a NodePort resource:
+
+```
+nodeport:
+  [...]
+  enabled: true
+```
+
+Since no TLS passthrough is possible without proper tls support, the passthrough_route should be disabled:
+
+```
+passthrough_route:
+  enabled: false
+  [...]
+```
+
+### TLS-enabled AMQ Brokers
 
 - Create (or import) a keystore/truststore pair for this broker: look [here](https://github.com/mcaimi/amq-custom-templates-openshift/blob/master/README.md) for an howto. Put the files under `tls/` and update the tls section in `values.yaml`:
 
@@ -60,11 +130,23 @@ tls:
 
 ```
 application:
-  name: amq-broker-basic-ssl
+  name: amq-broker-persistence-ssl
+  [...]
+  volume_capacity: "1G"
+```
+
+```
+parameters:
+  [...]
+  amq_data_dir: "/opt/amq/data"
   [...]
 ```
 
-the application name will be used as a prefix for most of the objects deployed by the Chart itself.
+For TLS-enabled brokers, both the NodePort and the Passthrough route options are working. Both can be enabled at the same time.
+
+### Common Setup
+
+The application name will be used as a prefix for most of the objects deployed by the Chart itself.
 
 - Update the Admin user name and password in `values.yaml`
 
@@ -79,7 +161,7 @@ admin:
 
 ```
 nodeport:
-  port: 30001
+  port: 30003
   service: multiplex-ssl
   enabled: true
 ```
@@ -88,8 +170,8 @@ this port needs to be in the allowed NodePort range set up in the kubelet (typic
 - Install the Chart under your preferred project
 
 ```
-$ oc new-project amq-demo-ssl
-$ helm install amq-basic-ssl .
+$ oc new-project amq-demo-persistence-ssl
+$ helm install amq-persistence-ssl .
 ```
 
 After a while, the broker should be up and running:
@@ -159,10 +241,10 @@ would be rendered by the Helm Chart into these two files:
     user = anotheruser
 ```
 
-Users and passwords may be stored in an existing secret instead of as clear text in the values.yaml  
-Disable creation of secret and specify the name of secret. 
-Set the `jaasUsers.key` to the filename used in the secret. Note that the filename have to be something different from  
-`artemis-users.properties` as the default file will be mounted in the same directory in the container.  
+Users and passwords may be stored in an existing secret instead of as clear text in the values.yaml: disable the creation of the built-in user secret and specify the name of an existing secret.
+
+Set the `jaasUsers.key` to the filename used in the secret. Note that the filename have to be something different from `artemis-users.properties` as the default file will be mounted in the same directory in the container.  
+
 For example: 
 ```
 security:
@@ -173,9 +255,9 @@ security:
     key: my-secured-artemis-users.properties
 
 ```
-and example of the secret.
-*Note*, that the AMQ_USER and AMQ_PASSWORD *must* be set as  
-the broker still uses these environment parameters:
+
+*Note*, that the AMQ_USER and AMQ_PASSWORD *must* be set, as the broker still uses these environment parameters:
+
 ```
 stringData:
   AMQ_USER: broker-admin
@@ -183,7 +265,6 @@ stringData:
   my-secured-artimis-users.properties: |
     # ADMIN USER
     broker-admin = mySecretPassword
-    
     # ADDITIONAL USERS
     consumer-user = otherSecretPassword
 type: Opaque
@@ -193,23 +274,26 @@ The `queues` section in `values.yaml` allows to add custom queues to the broker 
 
 ```
 queues:
-  - name: demoQueue
-    permissions:
-      - grant: consume
-        roles:
-          - admin
-          - user
-      - grant: browse
-        roles:
-          - admin
-          - user
-      - grant: send
-        roles:
-          - admin
-          - user
-      - grant: manage
-        roles:
-          - admin
+  defaults:
+    [...]
+  addresses:
+    - name: demoQueue
+      permissions:
+        - grant: consume
+          roles:
+            - admin
+            - user
+        - grant: browse
+          roles:
+            - admin
+            - user
+        - grant: send
+          roles:
+            - admin
+            - user
+        - grant: manage
+          roles:
+            - admin
 ```
 
 would result in this rendered section inside `broker.xml`:
@@ -222,3 +306,10 @@ would result in this rendered section inside `broker.xml`:
              <permission type="manage" roles="admin," />
            </security-setting>
 ```
+
+the defaults section under the queues stanza contains the values set for every queue if not overridden on a per queue basis.
+
+## Metering
+
+An optional prometheus ServiceMonitor is shipped with the chart. See values.yaml (metering stanza) for configuration.
+

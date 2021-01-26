@@ -24,6 +24,7 @@ spec:
       name: {{ tpl .Values.templates.deployment . }}
     spec:
       {{- include "amq.pod" . | nindent 6 }}
+  {{- if .Values.application.persistent }}
   volumeClaimTemplates:
   - metadata:
       name: {{ tpl .Values.templates.pvc_name . }}
@@ -32,4 +33,5 @@ spec:
       resources:
         requests:
           storage: {{ .Values.application.volume_capacity }}
+  {{- end }}
 {{- end }}

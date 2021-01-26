@@ -43,8 +43,10 @@ containers:
     value: "{{ .Values.parameters.amq_global_max_size }}"
   - name: AMQ_REQUIRE_LOGIN
     value: "{{ .Values.parameters.amq_require_login }}"
+  {{- if .Values.application.persistent }}
   - name: AMQ_DATA_DIR
     value: "{{ .Values.parameters.amq_data_dir }}"
+  {{- end }}
   - name: AMQ_EXTRA_ARGS
     value: {{ if .Values.parameters.amq_extra_args }} "{{ .Values.parameters.amq_extra_args }}" {{ else }} "" {{ end }}
   - name: AMQ_ANYCAST_PREFIX
@@ -85,8 +87,10 @@ containers:
     protocol: {{ .protocol }}
   {{- end }}
   volumeMounts:
+  {{- if .Values.application.persistent }}
     - name: {{ tpl .Values.templates.pvc_name . }}
       mountPath: {{ .Values.parameters.amq_data_dir }}
+  {{- end }}
     - name: broker-config-script-custom
       mountPath: /opt/amq/bin/configure_custom_config.sh
       subPath: configure_custom_config.sh
@@ -128,7 +132,7 @@ volumes:
         - secret:
             name: {{ . }}
         {{- end }}
-  {{- if eq .Values.kind "Deployment" }}
+  {{- if and (eq .Values.kind "Deployment") (.Values.application.persistent) }}
   - name: {{ tpl .Values.templates.pvc_name . }}
     persistentVolumeClaim:
       claimName: {{ tpl .Values.templates.pvc_name . }}
