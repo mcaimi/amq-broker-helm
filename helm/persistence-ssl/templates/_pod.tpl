@@ -70,7 +70,12 @@ containers:
       - "/opt/amq/bin/readinessProbe.sh"
   name: {{ tpl .Values.templates.deployment . }}
   ports:
-  {{- range .Values.service }}
+  {{- range .Values.service.acceptors }}
+  - containerPort: {{ .port }}
+    name: {{ .name }}
+    protocol: {{ .protocol }}
+  {{- end }}
+  {{- range .Values.service.console }}
   - containerPort: {{ .port }}
     name: {{ .name }}
     protocol: {{ .protocol }}

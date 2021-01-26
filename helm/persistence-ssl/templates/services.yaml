@@ -6,7 +6,11 @@ apiVersion: v1
 kind: Service
 metadata:
   annotations:
+    {{- if eq .Values.kind "StatefulSet" }}
     description: The broker's headless, non load balanced service
+    {{- else }}
+    description: AMQ Broker Service
+    {{- end }}
   labels:
     application: {{ $application_name }}
     app: {{ $application_name }}
@@ -18,7 +22,13 @@ spec:
   type: ClusterIP
   publishNotReadyAddresses: true
   ports:
-  {{- range .Values.service }}
+  {{- range .Values.service.acceptors }}
+  - port: {{ .port }}
+    name: {{ .name }}
+    protocol: {{ .protocol }}
+    targetPort: {{ .port }}
+  {{- end }}
+  {{- range .Values.service.console }}
   - port: {{ .port }}
     name: {{ .name }}
     protocol: {{ .protocol }}

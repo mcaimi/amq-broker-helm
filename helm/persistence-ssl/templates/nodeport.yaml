@@ -1,6 +1,6 @@
 {{- if .Values.nodeport.enabled }}
 {{- $np_svc := .Values.nodeport }}
-{{- range .Values.service }}
+{{- range .Values.service.acceptors }}
 {{- if eq .name $np_svc.service }}
 ---
 apiVersion: v1
