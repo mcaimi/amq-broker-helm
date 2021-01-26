@@ -6,8 +6,7 @@ Avaliable Helm Charts | Repo Link
 --------------------- | ---------
 Basic Broker | [amq-basic](https://github.com/mcaimi/amq-custom-templates-openshift/tree/master/helm/amq-basic)
 Basic Broker With SSL | [amq-ssl](https://github.com/mcaimi/amq-custom-templates-openshift/tree/master/helm/ssl)
-Basic Broker With Persistence | [amq-persistence](https://github.com/mcaimi/amq-custom-templates-openshift/tree/master/helm/persistence)
-Basic Broker With Persistence and SSL | [amq-persistence-ssl](https://github.com/mcaimi/amq-custom-templates-openshift/tree/master/helm/persistence-ssl)
+Broker With Persistence with optional TLS support | [amq-persistence](https://github.com/mcaimi/amq-custom-templates-openshift/tree/master/helm/persistent)
 Clustered AMQ Broker with Persistence | [clustered-persistence](https://github.com/mcaimi/amq-custom-templates-openshift/tree/master/helm/clustered-persistence)
 Clustered AMQ Broker with Persistence and SSL | [clustered-persistence-ssl](https://github.com/mcaimi/amq-custom-templates-openshift/tree/master/helm/clustered-persistence-ssl)
 

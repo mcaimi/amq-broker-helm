@@ -15,55 +15,20 @@ service:
       protocol: TCP
       port: 8161
   acceptors:
-    - name: amqp
-      description: "Plain AMQP protocol service endpoint"
-      protocol: TCP
-      port: 5672
-      amq_protocols: "AMQP"
-    - name: mqtt
-      description: "Plain MQTT protocol service endpoint"
-      protocol: TCP
-      port: 1883
-      amq_protocols: "MQTT"
-    - name: stomp
-      description: "Plain STOMP protocol service endpoint"
-      protocol: TCP
-      port: 61613
-      amq_protocols: "STOMP"
     - name: multiplex
       description: "Multiplexed protocol endpoint (CORE+All the others)"
       protocol: TCP
       port: 61616
       amq_protocols: "CORE,AMQP,STOMP,HORNETQ,MQTT,OPENWIRE"
-    - name: amqp-ssl
-      description: "AMQP SSL Service Endpoint"
-      protocol: TCP
-      port: 5671
-      amq_protocols: "AMQP"
-    - name: mqtt-ssl
-      description: "MQTT SSL Service Endpoint"
-      protocol: TCP
-      port: 8883
-      amq_protocols: "MQTT"
-    - name: stomp-ssl
-      description: "STOMP SSL Service Endpoint"
-      protocol: TCP
-      port: 61612
-      amq_protocols: "STOMP"
-    - name: multiplex-ssl
-      protocol: TCP
-      description: "Multiplexed SSL protocol endpoint (CORE+All the others)"
-      port: 61617
-      amq_protocols: "CORE,AMQP,STOMP,HORNETQ,MQTT,OPENWIRE"
 
 nodeport:
   port: 30003
-  service: multiplex-ssl
+  service: multiplex
   enabled: true
 
 passthrough_route:
   enabled: true
-  service: multiplex-ssl
+  service: multiplex
 
 tls:
   keystore: keystore.ks
@@ -72,6 +37,7 @@ tls:
   truststore_password: tspwd
 
 parameters:
+  tls_enabled: true
   amq_protocols: "openwire,amq,stomp,mqtt,hornetq,core"
   amq_admin_role: "admin"
   amq_broker_name: "broker"

@@ -17,6 +17,9 @@ containers:
     value: "{{ .Values.parameters.amq_broker_name }}"
   - name: AMQ_TRANSPORTS
     value: "{{ .Values.parameters.amq_protocols }}"
+  {{- if .Values.parameters.tls_enabled }}
+  - name: AB_JOLOKIA_HTTPS
+    value: "{{ .Values.parameters.jolokia_tls }}"
   - name: AMQ_KEYSTORE_TRUSTSTORE_DIR
     value: /etc/amq-secret-volume
   - name: AMQ_TRUSTSTORE
@@ -35,6 +38,7 @@ containers:
         key: AMQ_KEYSTORE_PASSWORD
   - name: AMQ_SSL_PROVIDER
     value: {{ tpl .Values.parameters.ssl_provider . }}
+  {{- end }}
   - name: AMQ_GLOBAL_MAX_SIZE
     value: "{{ .Values.parameters.amq_global_max_size }}"
   - name: AMQ_REQUIRE_LOGIN
@@ -94,14 +98,18 @@ containers:
     - name: broker-config-volume
       mountPath: "/opt/amq/conf"
       readOnly: true
+    {{- if .Values.parameters.tls_enabled }}
     - mountPath: /etc/amq-secret-volume
       name: broker-secret-volume
       readOnly: true
+    {{- end }}
 terminationGracePeriodSeconds: 60
 volumes:
+  {{- if .Values.parameters.tls_enabled }}
   - name: broker-secret-volume
     secret:
       secretName: {{ tpl .Values.templates.app_certificates . }}
+  {{- end }}
   - name: broker-config-script-custom
     configMap:
       name: {{ tpl .Values.templates.override_cm . }}
