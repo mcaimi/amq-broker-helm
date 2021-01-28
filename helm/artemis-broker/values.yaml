@@ -93,19 +93,22 @@ queues:
     maxDeliveryAttempts: 3
     redeliveryDelayMultiplier: 1
     redeliveryDelay: 5000
+    maxRedeliveryDelay: 50000
     maxSizeBytes: "100 mb"
     addressFullPolicy: "PAGE"
     messageCounterHistoryDayLimit: 10
-  addresses: []
+  addresses:
 #  - name: QUEUE_1
 #    type: anycast # for queues, choose 'multicast' for topics
 #    dlq_address: QUEUE_1_DLQ
 #    expiry_address:
-#    max_delivery_attempts:
-#    redelivery_delay:
-#    max_size_bytes:
-#    message_counter_history_day_limit:
-#    address_full_policy:
+#    maxDeliveryAttempts:
+#    redeliveryDelayMultiplier:
+#    redeliveryDelay:
+#    maxRedeliveryDelay:
+#    maxSizeBytes:
+#    messageCounterHistoryDayLimit:
+#    addressFullPolicy:
 #    permissions:
 #      - grant: consume
 #        roles:

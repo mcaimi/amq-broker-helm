@@ -104,6 +104,7 @@
             <max-delivery-attempts>{{ .Values.queues.defaults.maxDeliveryAttempts }}</max-delivery-attempts>
             <redelivery-delay>{{ .Values.queues.defaults.redeliveryDelay }}</redelivery-delay>
             <redelivery-delay-multiplier>{{ .Values.queues.defaults.redeliveryDelayMultiplier }}</redelivery-delay-multiplier>
+            <max-redelivery-delay>{{ .Values.queues.defaults.maxRedeliveryDelay }}</max-redelivery-delay>
             <!-- with -1 only the global-max-size is in use for limiting -->
             <max-size-bytes>{{ .Values.queues.defaults.maxSizeBytes }}</max-size-bytes>
             <message-counter-history-day-limit>{{ .Values.queues.defaults.messageCounterHistoryDayLimit }}</message-counter-history-day-limit>
@@ -121,36 +122,13 @@
           {{- if .expiry_address }}
             <expiry-address>{{ .expiry_address }}</expiry-address>
           {{- end }}
-          {{- if .maxDeliveryAttempts }}
-            <max-delivery-attempts>{{ .maxDeliveryAttempts }}</max-delivery-attempts>
-          {{- else }}
-            <max-delivery-attempts>{{ $.Values.queues.defaults.maxDeliveryAttempts }}</max-delivery-attempts>
-          {{- end }}
-          {{- if .redeliveryDelay }}
-            <redelivery-delay>{{ .redeliveryDelay }}</redelivery-delay>
-          {{- else }}
-            <redelivery-delay>{{ $.Values.queues.defaults.redeliveryDelay }}</redelivery-delay>
-          {{- end }}
-          {{- if .redeliveryDelayMultiplier }}
-            <redelivery-delay-multiplier>{{ .redeliveryDelayMultiplier }}</redelivery-delay-multiplier>
-          {{- else }}
-            <redelivery-delay-multiplier>{{ $.Values.queues.defaults.redeliveryDelayMultiplier }}</redelivery-delay-multiplier>
-          {{- end }}
-          {{- if .maxSizeBytes }}
-            <max-size-bytes>{{ .maxSizeBytes }}</max-size-bytes>
-          {{- else }}
-            <max-size-bytes>{{ $.Values.queues.defaults.maxSizeBytes }}</max-size-bytes>
-          {{- end }}
-          {{- if .messageCounterHistoryDayLimit }}
-            <message-counter-history-day-limit>{{ .messageCounterHistoryDayLimit }}</message-counter-history-day-limit>
-          {{- else }}
-            <message-counter-history-day-limit>{{ $.Values.queues.defaults.messageCounterHistoryDayLimit }}</message-counter-history-day-limit>
-          {{- end }}
-          {{- if .addressFullPolicy }}
-            <address-full-policy>{{ .addressFullPolicy }}</address-full-policy>
-          {{- else }}
-            <address-full-policy>{{ $.Values.queues.defaults.addressFullPolicy }}</address-full-policy>
-          {{- end }}
+          <max-delivery-attempts>{{ default $.Values.queues.defaults.maxDeliveryAttempts .maxDeliveryAttempts }}</max-delivery-attempts>
+          <redelivery-delay>{{ default $.Values.queues.defaults.redeliveryDelay .redeliveryDelay }}</redelivery-delay>
+          <redelivery-delay-multiplier>{{ default $.Values.queues.defaults.redeliveryDelayMultiplier .redeliveryDelayMultiplier }}</redelivery-delay-multiplier>
+          <max-redelivery-delay>{{ default $.Values.queues.defaults.maxRedeliveryDelay .maxRedeliveryDelay }}</max-redelivery-delay>
+          <max-size-bytes>{{ default $.Values.queues.defaults.maxSizeBytes .maxSizeBytes }}</max-size-bytes>
+          <message-counter-history-day-limit>{{ default $.Values.queues.defaults.messageCounterHistoryDayLimit .messageCounterHistoryDayLimit }}</message-counter-history-day-limit>
+          <address-full-policy>{{ default $.Values.queues.defaults.addressFullPolicy .addressFullPolicy }}</address-full-policy>
           </address-setting>
         {{- end }}
       </address-settings>
