@@ -1,7 +1,7 @@
 apiVersion: v2
-name: persistence-ssl
-version: 1.0
-description: An Heml Chart that deploys a Basic AMQ Broker with SSL and persistence
+name: artemis-broker
+version: 7.8
+description: An unified Helm Chart that deploys an Artemis MQ Broker with optional SSL support and Optional Disk Persistence
 type: application
 keywords:
   - activemq

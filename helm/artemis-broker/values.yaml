@@ -2,7 +2,7 @@
 kind: Deployment
 
 application:
-  name: amq-broker-persistence-ssl
+  name: amq-broker-artemis
   amq_broker_version: 7.8
   amq_broker_image: registry.redhat.io/amq7/amq-broker
   pullPolicy: IfNotPresent

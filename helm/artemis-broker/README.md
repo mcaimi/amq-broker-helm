@@ -130,7 +130,7 @@ tls:
 
 ```
 application:
-  name: amq-broker-persistence-ssl
+  name: amq-broker-artemis
   [...]
   volume_capacity: "1G"
 ```
@@ -162,7 +162,7 @@ admin:
 ```
 nodeport:
   port: 30003
-  service: multiplex-ssl
+  service: multiplex
   enabled: true
 ```
 this port needs to be in the allowed NodePort range set up in the kubelet (typically in the range 30000-32768)
@@ -170,34 +170,29 @@ this port needs to be in the allowed NodePort range set up in the kubelet (typic
 - Install the Chart under your preferred project
 
 ```
-$ oc new-project amq-demo-persistence-ssl
-$ helm install amq-persistence-ssl .
+$ oc new-project amq-demo-artemis
+$ helm install amq-broker-artemis .
 ```
 
-After a while, the broker should be up and running:
+After a while and depending on what options are enabled in the values file, the broker should be up and running:
 
 ```
 $ oc get all
-NAME                               READY   STATUS      RESTARTS   AGE
-pod/amq-broker-basic-dc-1-deploy   0/1     Completed   0          13m
-pod/amq-broker-basic-dc-1-trrsw    1/1     Running     0          13m
+NAME                                         READY   STATUS    RESTARTS   AGE
+pod/amq-broker-artemis-dc-6f7658dbc7-xgxll   1/1     Running   0          86s
 
-NAME                                          DESIRED   CURRENT   READY   AGE
-replicationcontroller/amq-broker-basic-dc-1   1         1         1       13m
+NAME                                      TYPE        CLUSTER-IP       EXTERNAL-IP   PORT(S)              AGE
+service/amq-broker-artemis-nodeport-svc   NodePort    172.30.208.78    <none>        61616:30003/TCP      87s
+service/amq-broker-artemis-svc            ClusterIP   172.30.194.187   <none>        61616/TCP,8161/TCP   87s
 
-NAME                                   TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)           AGE
-service/amq-broker-basic-svc-amqp      ClusterIP   172.25.221.5    <none>        5672/TCP          13m
-service/amq-broker-basic-svc-jolokia   ClusterIP   172.25.51.89    <none>        8161/TCP          13m
-service/amq-broker-basic-svc-mqtt      ClusterIP   172.25.14.64    <none>        1883/TCP          13m
-service/amq-broker-basic-svc-stomp     ClusterIP   172.25.196.97   <none>        61613/TCP         13m
-service/amq-broker-basic-svc-tcp       ClusterIP   172.25.56.105   <none>        61616/TCP         13m
-service/artemis-nodeport-svc           NodePort    172.25.159.17   <none>        61616:30000/TCP   13m
+NAME                                    READY   UP-TO-DATE   AVAILABLE   AGE
+deployment.apps/amq-broker-artemis-dc   1/1     1            1           87s
 
-NAME                                                     REVISION   DESIRED   CURRENT   TRIGGERED BY
-deploymentconfig.apps.openshift.io/amq-broker-basic-dc   1          1         1         config
+NAME                                               DESIRED   CURRENT   READY   AGE
+replicaset.apps/amq-broker-artemis-dc-6f7658dbc7   1         1         1       87s
 
-NAME                                                      HOST/PORT                                                  PATH   SERVICES                       PORT    TERMINATION   WILDCARD
-route.route.openshift.io/amq-broker-basic-route-console   amq-broker-basic-route-console-amq-demo.apps-crc.testing          amq-broker-basic-svc-jolokia   <all>                 None
+NAME                                                        HOST/PORT                                                               PATH   SERVICES                 PORT   TERMINATION     WILDCARD
+route.route.openshift.io/amq-broker-artemis-route-console   amq-broker-artemis-route-console-amq-helm-test.apps.lab01.gpslab.club          amq-broker-artemis-svc   8161   edge/Redirect   None
 ```
 
 ## ADDING QUEUES, USERS AND ROLES
