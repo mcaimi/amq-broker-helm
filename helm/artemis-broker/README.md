@@ -12,10 +12,12 @@ This chart handles the deployment of an AMQ broker without clustering enabled. T
 |NAME                              | DESCRIPTION                                              | DEFAULT VALUE |
 |----------------------------------|----------------------------------------------------------|----------------|
 | kind                             | Deploy broker as Deployment or StatefulSet               | `Deployment` |
+| clustered                        | Deploy a clustered broker                                | `False` |
 | application.name                 | The name for the application.                            | `amq-broker-persistence` |
 | application.amq_broker_version   | Broker Image tag                                         | `7.7` |
 | application.amq_broker_image     | Broker Image name                                        | `registry.redhat.io/amq7/amq-broker` |
 | application.pullPolicy           | Pull policy                                              | `IfNotPresent` |
+| application.replicas             | Number of replicas for a clustered broker                | `2` |
 | application.volume_capacity      | Size of persistent volume                                | `1G` |
 | service.console                  | Jolokia console port and configuration | See values.yaml |
 | service.acceptors                | Array of acceptors. Only the multiplex is exposed by default | See values.yaml |

@@ -20,6 +20,7 @@ spec:
     insecureEdgeTerminationPolicy: Redirect
   wildcardPolicy: None
 {{- end }}
+{{- if not .Values.clustered }}
 {{- if .Values.passthrough_route.enabled }}
 {{- range .Values.service.acceptors }}
 {{- $nm := toString .name }}
@@ -41,6 +42,7 @@ spec:
     termination: passthrough
     insecureEdgeTerminationPolicy: Redirect
   wildcardPolicy: None
+{{- end }}
 {{- end }}
 {{- end }}
 {{- end }}

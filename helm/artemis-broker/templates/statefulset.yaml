@@ -6,12 +6,21 @@ metadata:
   labels:
     application: {{ .Values.application.name }}
   name: {{ tpl .Values.templates.deployment . }}
+{{- if .Values.clustered }}
+  annotations:
+    {{- include "drainer.pod" . | nindent 6 }}
+{{- end }}
 spec:
   revisionHistoryLimit: 2
   selector:
     matchLabels:
       application: {{ .Values.application.name }}
+  {{- if .Values.clustered }}
+  podManagementPolicy: OrderedReady
+  replicas: {{ .Values.application.replicas }}
+  {{- else }}
   replicas: 1
+  {{- end }}
   serviceName: {{ $svc_name }}
   template:
     metadata:
@@ -21,6 +30,7 @@ spec:
       labels:
         application: {{ .Values.application.name }}
         deployment: {{ tpl .Values.templates.deployment . }}
+        app: {{ .Values.application.name }}
       name: {{ tpl .Values.templates.deployment . }}
     spec:
       {{- include "amq.pod" . | nindent 6 }}
@@ -33,5 +43,6 @@ spec:
       resources:
         requests:
           storage: {{ .Values.application.volume_capacity }}
+      storageClassName: {{ .Values.application.storageclass }}
   {{- end }}
 {{- end }}
