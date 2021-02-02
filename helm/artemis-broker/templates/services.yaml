@@ -36,4 +36,22 @@ spec:
   {{- end }}
   selector:
     deployment: {{ $dc_name }}
-
+{{- if .Values.clustered }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    description: The JGroups ping port for clustering.
+    service.alpha.kubernetes.io/tolerate-unready-endpoints: 'true'
+  labels:
+    application: {{ $application_name }}
+  name: {{ tpl .Values.ping_service.name . }}
+spec:
+  clusterIP: None
+  ports:
+    - targetPort: {{ .Values.ping_service.port }}
+      port: {{ .Values.ping_service.port }}
+  selector:
+    deployment: {{ $dc_name }}
+{{- end }}

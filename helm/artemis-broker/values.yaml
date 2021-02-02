@@ -1,5 +1,7 @@
 # Deploy broker as Deployment or StatefulSet
+# if clustered is True, then only StatefulSet is supported
 kind: Deployment
+clustered: false
 
 application:
   name: amq-broker-artemis
@@ -8,6 +10,8 @@ application:
   pullPolicy: IfNotPresent
   persistent: true
   volume_capacity: "1G"
+  replicas: 1
+  storageclass: default
 
 service:
   console:
@@ -21,6 +25,10 @@ service:
       protocol: TCP
       port: 61616
       amq_protocols: "CORE,AMQP,STOMP,HORNETQ,MQTT,OPENWIRE"
+
+ping_service:
+  name: "{{ .Values.application.name }}-ping-svc"
+  port: 8888
 
 nodeport:
   port: 30003
@@ -54,6 +62,9 @@ parameters:
 
 templates:
   service: "{{ .Values.application.name }}-svc"
+  service_account: "{{ .Values.application.name }}-sa"
+  k8s_role: "{{ .Values.application.name }}-role"
+  k8s_rolebinding: "{{ .Values.application.name }}-rolebinding"
   deployment: "{{ .Values.application.name }}-dc"
   route: "{{ .Values.application.name }}-route"
   broker_image: "{{ .Values.application.amq_broker_image }}:{{ .Values.application.amq_broker_version }}"
@@ -66,7 +77,9 @@ templates:
 admin:
   user: admin
   password: password
-  roles: 
+  cluster_user: cadmin
+  cluster_password: cpassword
+  roles:
     - admin
 
 security:

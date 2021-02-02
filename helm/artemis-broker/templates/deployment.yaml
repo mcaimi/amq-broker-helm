@@ -1,4 +1,7 @@
 {{- if eq .Values.kind "Deployment" }}
+{{- if .Values.clustered }}
+  {{- fail ".Values.kind is set to Deployment but this is unsupported in a clustered environment. Use a StatefulSet" }}
+{{- else }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -24,4 +27,5 @@ spec:
       name: {{ tpl .Values.templates.deployment . }}
     spec:
       {{- include "amq.pod" . | nindent 6 }}
+{{- end }}
 {{- end }}

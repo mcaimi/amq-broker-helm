@@ -1,6 +1,30 @@
 {{- define "amq.pod" -}}
 containers:
 - env:
+{{- if .Values.clustered }}
+  - name: APPLICATION_NAME
+    value: "{{ .Values.application.name }}"
+  - name: PING_SVC_NAME
+    value: "{{ tpl .Values.ping_service.name . }}"
+  - name: AMQ_CLUSTERED
+    value: "{{ .Values.clustered }}"
+  - name: AMQ_REPLICAS
+    value: "{{ .Values.application.replicas }}"
+  - name: AMQ_CLUSTER_USER
+    valueFrom:
+      secretKeyRef:
+        name: {{ tpl .Values.templates.app_secret . }}
+        key: AMQ_CLUSTER_USER
+  - name: AMQ_CLUSTER_PASSWORD
+    valueFrom:
+      secretKeyRef:
+        name: {{ tpl .Values.templates.app_secret . }}
+        key: AMQ_CLUSTER_PASSWORD
+  - name: POD_NAMESPACE
+    valueFrom:
+      fieldRef:
+        fieldPath: metadata.namespace
+{{- end }}
   - name: AMQ_USER
     valueFrom:
       secretKeyRef:
@@ -99,6 +123,12 @@ containers:
       mountPath: /opt/amq/bin/launch.sh
       subPath: launch.sh
       readOnly: true
+  {{- if .Values.clustered }}
+    - name: broker-config-script-custom
+      mountPath: /opt/amq/bin/drain.sh
+      subPath: drain.sh
+      readOnly: true
+  {{- end }}
     - name: broker-config-volume
       mountPath: "/opt/amq/conf"
       readOnly: true
@@ -122,6 +152,10 @@ volumes:
           path: configure_custom_config.sh
         - key: launch.sh
           path: launch.sh
+      {{- if .Values.clustered }}
+        - key: drain.sh
+          path: drain.sh
+      {{- end }}
       defaultMode: 0550
   - name: broker-config-volume
     projected:

@@ -1,13 +1,14 @@
 apiVersion: v2
 name: artemis-broker
 version: 7.8
-description: An unified Helm Chart that deploys an Artemis MQ Broker with optional SSL support and Optional Disk Persistence
+description: An unified Helm Chart that deploys an Artemis MQ Broker with optional SSL support and Optional Disk Persistence. Clustered setups are also supported.
 type: application
 keywords:
   - activemq
   - artemismq
   - amq-broker
   - ssl-endpoint
+  - amq-cluster
 home: https://access.redhat.com/products/red-hat-amq/
 sources:
   - https://github.com/mcaimi/amq-custom-templates-openshift
