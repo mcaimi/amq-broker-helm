@@ -166,7 +166,7 @@ volumes:
         - secret:
             name: {{ . }}
         {{- end }}
-  {{- if .Values.application.persistent }}
+  {{- if and (eq .Values.kind "Deployment") (.Values.application.persistent) }}
   - name: {{ tpl .Values.templates.pvc_name . }}
     persistentVolumeClaim:
       claimName: {{ tpl .Values.templates.pvc_name . }}
