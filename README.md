@@ -4,9 +4,9 @@ Development is now underway to convert all those templates to Helm Charts:
 
 Avaliable Helm Charts | Repo Link
 --------------------- | ---------
-Non-Clustered AMQ Broker w/optional persistence and SSL Support | [artemis-broker](https://github.com/mcaimi/amq-custom-templates-openshift/tree/master/helm/artemis-broker)
-Clustered AMQ Broker with Persistence | [clustered-persistence](https://github.com/mcaimi/amq-custom-templates-openshift/tree/master/helm/clustered-persistence)
-Clustered AMQ Broker with Persistence and SSL | [clustered-persistence-ssl](https://github.com/mcaimi/amq-custom-templates-openshift/tree/master/helm/clustered-persistence-ssl)
+AMQ Broker w/optional persistence and SSL Support | [artemis-broker](https://github.com/mcaimi/amq-custom-templates-openshift/tree/master/helm/artemis-broker)
+
+The helm chart also allows for Clustered Setups (currently untested)
 
 Also, standard openshift templates are available: with these custom templates an user can deploy an AMQ Broker instance with custom configurations:
 
