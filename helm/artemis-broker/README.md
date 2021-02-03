@@ -1,6 +1,6 @@
-# NON-CLUSTERED AMQ BROKER HELM CHART
+# RED HAT AMQ BROKER HELM CHART
 
-This chart handles the deployment of an AMQ broker without clustering enabled. These deployment flavors are supported:
+This chart handles the deployment of RedHat AMQ broker instances on both OCP and generic k8s distributions. These deployment flavors are supported:
 
 1. Standalone AMQ Broker
 2. Choice between `Deployment` and `StatefulSet`

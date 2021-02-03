@@ -1,14 +1,15 @@
 # CUSTOM RED HAT AMQ BROKER TEMPLATES FOR OPENSHIFT
 
-Development is now underway to convert all those templates to Helm Charts:
+Development is now focused on Helm.
 
 Avaliable Helm Charts | Repo Link
 --------------------- | ---------
 AMQ Broker w/optional persistence and SSL Support | [artemis-broker](https://github.com/mcaimi/amq-custom-templates-openshift/tree/master/helm/artemis-broker)
 
-The helm chart also allows for Clustered Setups (currently untested)
+This helm chart supports both OCP and K8S distributions. The chart also allows for Clustered Setups but this is currently untested.
 
-Also, standard openshift templates are available: with these custom templates an user can deploy an AMQ Broker instance with custom configurations:
+Old openshift application templates are still available but these are deprecated and are not maintained anymore.
+With these custom templates an user can deploy an AMQ Broker instance with custom configurations:
 
 1. Custom broker.xml file
 2. Custom artemis-users and artemis-roles property files
