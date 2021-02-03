@@ -43,6 +43,6 @@ spec:
       resources:
         requests:
           storage: {{ .Values.application.volume_capacity }}
-      storageClassName: {{ .Values.application.storageclass }}
+      storageClassName: "{{ .Values.application.storageclass }}"
   {{- end }}
 {{- end }}
