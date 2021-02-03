@@ -1,0 +1,65 @@
+{{- if eq .Values.platform "kubernetes" }}
+{{- $route_name := tpl .Values.templates.route . }}
+{{- $svc_name := tpl .Values.templates.service . }}
+{{- if .Values.parameters.tls_enabled }}
+{{- if not .Values.clustered }}
+{{- if .Values.ingress.passthrough.enabled }}
+{{- range .Values.service.acceptors }}
+{{- $nm := toString .name }}
+{{- if eq $nm $.Values.ingress.passthrough.service }}
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: "{{ $route_name }}-passthrough"
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/ssl-passthrough: "true"
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+spec:
+  rules:
+  - host: "{{ $route_name }}-passthrough.{{ $.Values.ingress.domain }}"
+    http:
+      paths:
+      - path: "{{ $.Values.ingress.passthrough.path }}"
+        pathType: Prefix
+        backend:
+          service:
+            name: {{ $svc_name }}
+            port:
+              number: {{ .port }}
+{{- end }}
+{{- end }}
+{{- end }}
+{{- end }}
+{{- end }}
+{{- if .Values.ingress.console.enabled }}
+{{- range .Values.service.console }}
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: "{{ $route_name }}-console"
+  annotations:
+    kubernetes.io/ingress.class: nginx
+spec:
+  {{- if $.Values.ingress.console.tls }}
+  tls:
+  - hosts:
+      - "{{ $route_name }}-console.{{ $.Values.ingress.domain }}"
+    secretName: {{ $.Values.ingress.console.tlsSecretName }}
+  {{- end }}
+  rules:
+  - host: "{{ $route_name }}-console.{{ $.Values.ingress.domain }}"
+    http:
+      paths:
+      - path: "{{ $.Values.ingress.console.path }}"
+        pathType: Prefix
+        backend:
+          service:
+            name: {{ $svc_name }}
+            port:
+              number: {{ .port }}
+{{- end }}
+{{- end }}
+{{- end }}

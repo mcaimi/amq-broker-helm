@@ -3,6 +3,9 @@
 kind: Deployment
 clustered: false
 
+# Platform type.
+platform: openshift
+
 application:
   name: amq-broker-artemis
   amq_broker_version: 7.8
@@ -12,6 +15,8 @@ application:
   volume_capacity: "1G"
   replicas: 1
   storageclass: default
+  # this is used if platform type is set as "kubernetes"
+  pullSecretName: redhat-pullsecret
 
 service:
   console:
@@ -38,6 +43,25 @@ nodeport:
 passthrough_route:
   enabled: false
   service: multiplex
+
+# only relevant for deployment on kubernetes
+ingress:
+  # the ingress rule domain
+  domain: kubernetes.local
+  # passthrough ingress rule: only relevant for TLS enabled brokers
+  passthrough:
+    path: "/"
+    service: multiplex
+    enabled: true
+  # jolokia console ingress rule. optional tls certificates can be configured here
+  console:
+    path: "/"
+    service: jolokia
+    enabled: true
+    tls: true
+    tlsSecretName: "amq-console-ingress-certs"
+    cert: ingress_console.crt
+    key: ingress_console.key
 
 tls:
   keystore: keystore.ks

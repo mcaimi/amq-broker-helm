@@ -1,3 +1,4 @@
+{{- if eq .Values.platform "openshift" }}
 {{- $svc_name := tpl .Values.templates.service . }}
 {{- $app_name := tpl .Values.application.name . }}
 {{- $route_name := tpl .Values.templates.route . }}
@@ -42,6 +43,7 @@ spec:
     termination: passthrough
     insecureEdgeTerminationPolicy: Redirect
   wildcardPolicy: None
+{{- end }}
 {{- end }}
 {{- end }}
 {{- end }}

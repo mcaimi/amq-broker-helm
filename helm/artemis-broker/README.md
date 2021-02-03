@@ -8,11 +8,14 @@ This chart handles the deployment of an AMQ broker without clustering enabled. T
 4. Persistence is optional. (Needs a supported StorageClass)
 5. NodePorts and Passthrough Routes
 6. Optional Prometheus monitoring
+7. Optional Clustering (WIP)
+8. Deployment compatibility with both Openshift and base Kubernetes
 
 |NAME                              | DESCRIPTION                                              | DEFAULT VALUE |
 |----------------------------------|----------------------------------------------------------|----------------|
 | kind                             | Deploy broker as Deployment or StatefulSet               | `Deployment` |
 | clustered                        | Deploy a clustered broker                                | `False` |
+| platform                         | Choose platform type (openshift or kubernetes)           | `openshift` |
 | application.name                 | The name for the application.                            | `amq-broker-persistence` |
 | application.amq_broker_version   | Broker Image tag                                         | `7.7` |
 | application.amq_broker_image     | Broker Image name                                        | `registry.redhat.io/amq7/amq-broker` |
@@ -21,6 +24,9 @@ This chart handles the deployment of an AMQ broker without clustering enabled. T
 | application.volume_capacity      | Size of persistent volume                                | `1G` |
 | service.console                  | Jolokia console port and configuration | See values.yaml |
 | service.acceptors                | Array of acceptors. Only the multiplex is exposed by default | See values.yaml |
+| ingress                          | Ingress configuration (only applies to kubernetes platform | See values.yaml |
+| ingress.passthrough              | Passthrough ingress rule options (k8s only)              | See values.yaml |
+| ingress.console                  | Artemis console ingress rule options (k8s only)          | See values.yaml |
 | tls.keystore                     | Name of the keystore file                                | See values.yaml |
 | tls.truststore                   | Name of the truststoreile                                | See values.yaml |
 | tls.keystore_password            | Password to unlock the keystore on container boot        | See values.yaml |
@@ -309,4 +315,33 @@ the defaults section under the queues stanza contains the values set for every q
 ## Metering
 
 An optional prometheus ServiceMonitor is shipped with the chart. See values.yaml (metering stanza) for configuration.
+
+## Clustering
+
+Optional clustering is somewhat supported, but it is still considered WIP.
+
+## Kubernetes support
+
+AMQ Broker can be deployed also on standard Kubernetes clusters:
+
+1. Ingress Rules are deployed instead of Openshift Routes for both the console and the passthrough route
+2. A valid RedHat pull secret needs to be explicitly created in order to pull the AMQ broker images from registry.redhat.io:
+
+```
+$ kubectl create secret docker-registry <PULL SECRET NAME> \
+          --docker-server=registry.redhat.io \
+          --docker-username=<CUSTOMER PORTAL USERNAME> \
+          --docker-password=<CUSTOMER PORTAL PASSWORD> \
+          --docker-email=<email address>
+```
+
+The secret created with the command shown above needs to be set up in the _values.yaml_ file:
+
+```
+[...]
+application:
+[...]
+  pullSecretName: <PULL SECRET NAME>
+[...]
+```
 

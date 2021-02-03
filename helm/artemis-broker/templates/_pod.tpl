@@ -1,4 +1,8 @@
 {{- define "amq.pod" -}}
+{{- if eq .Values.platform "kubernetes" -}}
+imagePullSecrets:
+  - name: {{ .Values.application.pullSecretName }}
+{{- end }}
 containers:
 - env:
 {{- if .Values.clustered }}
