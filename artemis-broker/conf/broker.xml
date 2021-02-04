@@ -181,5 +181,35 @@
         <plugin class-name="org.apache.activemq.artemis.core.server.metrics.plugins.ArtemisPrometheusMetricsPlugin"/>
       </metrics>
       {{- end }}
+      {{- if .Values.clustered }}
+        <discovery-groups>
+          <discovery-group name="my-discovery-group">
+        <jgroups-file>{{ .Values.cluster.jgroupsCfg }}</jgroups-file>
+        <jgroups-channel>activemq_broadcast_channel</jgroups-channel>
+        <refresh-timeout>{{ .Values.cluster.refreshTimeout }}</refresh-timeout>
+        </discovery-group>
+      </discovery-groups>
+      <broadcast-groups>
+        <broadcast-group name="my-broadcast-group">
+        <jgroups-file>{{ .Values.cluster.jgroupsCfg }}</jgroups-file>
+        <jgroups-channel>activemq_broadcast_channel</jgroups-channel>
+        <connector-ref>{{ .Values.cluster.connectorRef }}</connector-ref>
+        </broadcast-group>
+      </broadcast-groups>
+      <cluster-connections>
+        <cluster-connection name="my-cluster">
+        <connector-ref>{{ .Values.cluster.connectorRef }}</connector-ref>
+        <retry-interval>1000</retry-interval>
+        <retry-interval-multiplier>2</retry-interval-multiplier>
+        <max-retry-interval>32000</max-retry-interval>
+        <initial-connect-attempts>20</initial-connect-attempts>
+        <reconnect-attempts>10</reconnect-attempts>
+        <use-duplicate-detection>true</use-duplicate-detection>
+        <message-load-balancing>ON_DEMAND</message-load-balancing>
+        <max-hops>1</max-hops>
+        <discovery-group-ref discovery-group-name="my-discovery-group"/>
+        </cluster-connection>
+      </cluster-connections>
+      {{- end }}
    </core>
 </configuration>

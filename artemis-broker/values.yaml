@@ -13,7 +13,7 @@ application:
   pullPolicy: IfNotPresent
   persistent: true
   volume_capacity: "1G"
-  replicas: 1
+  replicas: 2
   storageclass: default
   # this is used if platform type is set as "kubernetes"
   pullSecretName: redhat-pullsecret
@@ -83,6 +83,11 @@ parameters:
   ssl_provider: "jdk" # alternative is openssl
   amq_data_dir: "/opt/amq/data"
   amq_force_addresses_cleanup: True # if true remove all queues that are not declared here upon chart update
+
+cluster:
+  jgroupsCfg: "jgroups-ping.xml"
+  refreshTimeout: 10000
+  connectorRef: artemis
 
 templates:
   service: "{{ .Values.application.name }}-svc"
