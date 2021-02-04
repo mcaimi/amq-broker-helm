@@ -13,7 +13,7 @@ application:
   pullPolicy: IfNotPresent
   persistent: true
   volume_capacity: "1G"
-  replicas: 2
+  replicas: 1
   storageclass: default
   # this is used if platform type is set as "kubernetes"
   pullSecretName: redhat-pullsecret
@@ -58,7 +58,7 @@ ingress:
     path: "/"
     service: jolokia
     enabled: true
-    tls: true
+    tls: false
     tlsSecretName: "amq-console-ingress-certs"
     cert: ingress_console.crt
     key: ingress_console.key
@@ -87,7 +87,9 @@ parameters:
 cluster:
   jgroupsCfg: "jgroups-ping.xml"
   refreshTimeout: 10000
-  connectorRef: artemis
+  connector:
+    ref: multiplex
+    port: 61616
 
 templates:
   service: "{{ .Values.application.name }}-svc"
