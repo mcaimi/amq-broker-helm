@@ -141,7 +141,7 @@ queues:
     maxSizeBytes: "100 mb"
     addressFullPolicy: "PAGE"
     messageCounterHistoryDayLimit: 10
-  addresses:
+  addresses: []
 #  - name: QUEUE_1
 #    type: anycast # for queues, choose 'multicast' for topics
 #    dlq_address: QUEUE_1_DLQ
