@@ -71,6 +71,7 @@ tls:
 
 parameters:
   tls_enabled: false
+  jolokia_passthrough: false
   amq_protocols: "openwire,amq,stomp,mqtt,hornetq,core"
   amq_admin_role: "admin"
   amq_broker_name: "broker"

@@ -46,8 +46,6 @@ containers:
   - name: AMQ_TRANSPORTS
     value: "{{ .Values.parameters.amq_protocols }}"
   {{- if .Values.parameters.tls_enabled }}
-  - name: AB_JOLOKIA_HTTPS
-    value: "{{ .Values.parameters.jolokia_tls }}"
   - name: AMQ_KEYSTORE_TRUSTSTORE_DIR
     value: /etc/amq-secret-volume
   - name: AMQ_TRUSTSTORE
