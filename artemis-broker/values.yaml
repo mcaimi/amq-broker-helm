@@ -29,7 +29,9 @@ service:
       description: "Multiplexed protocol endpoint (CORE+All the others)"
       protocol: TCP
       port: 61616
-      amq_protocols: "CORE,AMQP,STOMP,HORNETQ,MQTT,OPENWIRE"
+      # if needed, override the protocols here.
+      # default values are specified in the "parameters" section below
+      #amq_protocols: "CORE,AMQP,STOMP,HORNETQ,MQTT,OPENWIRE"
 
 ping_service:
   name: "{{ .Values.application.name }}-ping-svc"
