@@ -69,6 +69,7 @@ ingress:
     key: ingress_console.key
 
 tls:
+  secret_mount_path: "/etc/amq-secret-volume"
   keystore: keystore.ks
   truststore: keystore.ts
   keystore_password: kspwd

@@ -28,7 +28,7 @@
 
    <!-- The web server is only bound to localhost by default -->
 {{- if $jolokia_ssl }}
-   <web bind="https://0.0.0.0:8161" path="web" keyStorePath="/etc/amq-secret-volume/broker.ks" keyStorePassword="password">
+   <web bind="https://0.0.0.0:8161" path="web" keyStorePath="{{ .Values.tls.secret_mount_path }}/{{ .Values.tls.keystore }}" keyStorePassword="{{ .Values.tls.keystore_password }}">
 {{- else }}
    <web bind="http://0.0.0.0:8161" path="web">
 {{- end }}

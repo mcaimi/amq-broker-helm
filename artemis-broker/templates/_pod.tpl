@@ -46,6 +46,8 @@ containers:
   - name: AMQ_TRANSPORTS
     value: "{{ .Values.parameters.amq_protocols }}"
   {{- if .Values.parameters.tls_enabled }}
+  - name: AB_JOLOKIA_HTTPS
+    value: "{{ .Values.parameters.jolokia_passthrough }}"
   - name: AMQ_KEYSTORE_TRUSTSTORE_DIR
     value: /etc/amq-secret-volume
   - name: AMQ_TRUSTSTORE
@@ -135,7 +137,7 @@ containers:
       mountPath: "/opt/amq/conf"
       readOnly: true
     {{- if .Values.parameters.tls_enabled }}
-    - mountPath: /etc/amq-secret-volume
+    - mountPath: {{ .Values.tls.secret_mount_path }}
       name: broker-secret-volume
       readOnly: true
     {{- end }}
