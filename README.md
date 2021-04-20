@@ -35,6 +35,7 @@ This chart handles the deployment of RedHat AMQ broker instances on both OCP and
 | nodeport.port                    | Node port number used when enabled | `30002` |
 | passthrough_route.enabled        | Create a passthrough route to allow inbound TCP/SNI connections to a TLS-enabled broker | `False` |
 | parameters.tls_enabled           | Enable or disable TLS support for acceptors | `false` |
+| parameters.jolokia_passthrough   | Configure TLS for the jolokia console as a passthrough route or an edge terminated route if tls_enabled is set to true | `false` |
 | parameters.amq_protocols         | Protocols to configure, separated by commas. Allowed values are: `openwire`, `amqp`, `stomp`, `mqtt` and `hornetq`. | `openwire,amqp,stomp,mqtt,hornetq` |
 | parameters.amq_broker_name       | Broker name (TODO is this used? Same as application.name ) | `broker` |
 | parameters.amq_admin_role        | Admin role | `admin` |
@@ -146,6 +147,8 @@ application:
 ```
 parameters:
   [...]
+  tls_enabled: true
+  jolokia_passthrough: false # set this to true if you want to use the same keystore for the jolokia console too. in this case the route will be created as passthrough
   amq_data_dir: "/opt/amq/data"
   [...]
 ```
@@ -343,5 +346,40 @@ application:
 [...]
   pullSecretName: <PULL SECRET NAME>
 [...]
+```
+
+## KEYSTORE CREATION MINI-HOWTO
+
+In order to deploy SSL-enabled templates, a secret with valid Java Truststore and Keystore files must be created.
+To create a keystore:
+
+1. Generate a self-signed certificate for the broker keystore:
+```
+$ keytool -genkey -alias broker -keyalg RSA -keystore broker.ks
+```
+
+2. Export the certificate so that it can be shared with clients:
+```
+$ keytool -export -alias broker -keystore broker.ks -file broker_cert
+```
+
+3. Generate a self-signed certificate for the client keystore:
+```
+$ keytool -genkey -alias client -keyalg RSA -keystore client.ks
+```
+
+4. Create a client truststore that imports the broker certificate:
+```
+$ keytool -import -alias broker -keystore client.ts -file broker_cert
+```
+
+5. Export the client’s certificate from the keystore:
+```
+$ keytool -export -alias client -keystore client.ks -file client_cert
+```
+
+6. Import the client’s exported certificate into a broker SERVER truststore:
+```
+$ keytool -import -alias client -keystore broker.ts -file client_cert
 ```
 
