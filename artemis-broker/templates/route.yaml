@@ -2,6 +2,7 @@
 {{- $svc_name := tpl .Values.templates.service . }}
 {{- $app_name := tpl .Values.application.name . }}
 {{- $route_name := tpl .Values.templates.route . }}
+{{- $jolokia_ssl := and (.Values.parameters.tls_enabled) (.Values.parameters.jolokia_passthrough) }}
 {{- range .Values.service.console }}
 ---
 apiVersion: route.openshift.io/v1
@@ -17,7 +18,11 @@ spec:
   port:
     targetPort: {{ .port }}
   tls:
+{{- if $jolokia_ssl }}
+    termination: passthrough
+{{- else }}
     termination: edge
+{{- end }}
     insecureEdgeTerminationPolicy: Redirect
   wildcardPolicy: None
 {{- end }}
