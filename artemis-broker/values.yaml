@@ -28,6 +28,9 @@ service:
     - name: multiplex
       description: "Multiplexed protocol endpoint (CORE+All the others)"
       protocol: TCP
+      # when tls is enabled, all acceptors are tls-protected.
+      # this behaviour can be overridden by marking the acceptor as non-tls
+      #use_tls: false
       port: 61616
       # if needed, override the protocols here.
       # default values are specified in the "parameters" section below

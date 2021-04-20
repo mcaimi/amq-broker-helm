@@ -55,7 +55,11 @@
          <!-- Acceptor for every supported protocol -->
         {{- if .Values.parameters.tls_enabled }}
         {{- range .Values.service.acceptors }}
+        {{- if or (.use_tls) (eq (.use_tls | toString) "<nil>") }}
         <acceptor name="{{ .name }}">tcp://${BROKER_IP}:{{ .port }}?tcpSendBufferSize=1048576;tcpReceiveBufferSize=1048576;protocols={{ default $.Values.parameters.amq_protocols .amq_protocols }};useEpoll=true;amqpCredits=1000;amqpLowCredits=300;anycastPrefix=${AMQ_ANYCAST_PREFIX};multicastPrefix=${AMQ_MULTICAST_PREFIX};connectionsAllowed={{ .max_connections }};sslEnabled=true;keyStorePath=${AMQ_KEYSTORE_TRUSTSTORE_PATH}/{{ $.Values.tls.keystore }};keyStorePassword=${AMQ_KEYSTORE_PASSWORD};sslProvider={{ $.Values.parameters.ssl_provider }}</acceptor>
+        {{- else }}
+        <acceptor name="{{ .name }}">tcp://${BROKER_IP}:{{ .port }}?tcpSendBufferSize=1048576;tcpReceiveBufferSize=1048576;protocols={{ default $.Values.parameters.amq_protocols .amq_protocols }};useEpoll=true;amqpCredits=1000;amqpLowCredits=300;anycastPrefix=${AMQ_ANYCAST_PREFIX};multicastPrefix=${AMQ_MULTICAST_PREFIX}</acceptor>
+        {{- end }}
         {{- end }}
         {{- else }}
         {{- range .Values.service.acceptors }}
