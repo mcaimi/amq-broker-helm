@@ -35,6 +35,12 @@ service:
       # if needed, override the protocols here.
       # default values are specified in the "parameters" section below
       #amq_protocols: "CORE,AMQP,STOMP,HORNETQ,MQTT,OPENWIRE"
+      # also, additional properties for a single acceptor can be set here
+      #acceptor_params:
+      #  - key: supportAdvisory
+      #    value: false
+      #  - key: suppressInternalManagementObjects
+      #    value: false
 
 ping_service:
   name: "{{ .Values.application.name }}-ping-svc"

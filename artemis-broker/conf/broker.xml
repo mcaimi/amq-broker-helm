@@ -55,15 +55,23 @@
          <!-- Acceptor for every supported protocol -->
         {{- if .Values.parameters.tls_enabled }}
         {{- range .Values.service.acceptors }}
+          {{- $extra_args := list -}}
+          {{- range .acceptor_params }}
+          {{- $extra_args = printf "%s=%s" (toString .key) (toString .value) | append $extra_args }}
+          {{- end }}
         {{- if or (.use_tls) (eq (.use_tls | toString) "<nil>") }}
-        <acceptor name="{{ .name }}">tcp://${BROKER_IP}:{{ .port }}?tcpSendBufferSize=1048576;tcpReceiveBufferSize=1048576;protocols={{ default $.Values.parameters.amq_protocols .amq_protocols }};useEpoll=true;amqpCredits=1000;amqpLowCredits=300;anycastPrefix=${AMQ_ANYCAST_PREFIX};multicastPrefix=${AMQ_MULTICAST_PREFIX};connectionsAllowed={{ .max_connections }};sslEnabled=true;keyStorePath=${AMQ_KEYSTORE_TRUSTSTORE_PATH}/{{ $.Values.tls.keystore }};keyStorePassword=${AMQ_KEYSTORE_PASSWORD};trustStorePath=${AMQ_KEYSTORE_TRUSTSTORE_PATH}/{{ $.Values.tls.truststore }};trustStorePassword=${AMQ_TRUSTSTORE_PASSWORD};sslProvider={{ $.Values.parameters.ssl_provider }}</acceptor>
+        <acceptor name="{{ .name }}">tcp://${BROKER_IP}:{{ .port }}?tcpSendBufferSize=1048576;tcpReceiveBufferSize=1048576;protocols={{ default $.Values.parameters.amq_protocols .amq_protocols }};useEpoll=true;amqpCredits=1000;amqpLowCredits=300;anycastPrefix=${AMQ_ANYCAST_PREFIX};multicastPrefix=${AMQ_MULTICAST_PREFIX};connectionsAllowed={{ .max_connections }};sslEnabled=true;keyStorePath=${AMQ_KEYSTORE_TRUSTSTORE_PATH}/{{ $.Values.tls.keystore }};keyStorePassword=${AMQ_KEYSTORE_PASSWORD};trustStorePath=${AMQ_KEYSTORE_TRUSTSTORE_PATH}/{{ $.Values.tls.truststore }};trustStorePassword=${AMQ_TRUSTSTORE_PASSWORD};sslProvider={{ $.Values.parameters.ssl_provider }};{{ $extra_args | join ";" }}</acceptor>
         {{- else }}
-        <acceptor name="{{ .name }}">tcp://${BROKER_IP}:{{ .port }}?tcpSendBufferSize=1048576;tcpReceiveBufferSize=1048576;protocols={{ default $.Values.parameters.amq_protocols .amq_protocols }};useEpoll=true;amqpCredits=1000;amqpLowCredits=300;anycastPrefix=${AMQ_ANYCAST_PREFIX};multicastPrefix=${AMQ_MULTICAST_PREFIX}</acceptor>
+        <acceptor name="{{ .name }}">tcp://${BROKER_IP}:{{ .port }}?tcpSendBufferSize=1048576;tcpReceiveBufferSize=1048576;protocols={{ default $.Values.parameters.amq_protocols .amq_protocols }};useEpoll=true;amqpCredits=1000;amqpLowCredits=300;anycastPrefix=${AMQ_ANYCAST_PREFIX};multicastPrefix=${AMQ_MULTICAST_PREFIX};{{ $extra_args | join ";" }}</acceptor>
         {{- end }}
         {{- end }}
         {{- else }}
         {{- range .Values.service.acceptors }}
-        <acceptor name="{{ .name }}">tcp://${BROKER_IP}:{{ .port }}?tcpSendBufferSize=1048576;tcpReceiveBufferSize=1048576;protocols={{ default $.Values.parameters.amq_protocols .amq_protocols }};useEpoll=true;amqpCredits=1000;amqpLowCredits=300;anycastPrefix=${AMQ_ANYCAST_PREFIX};multicastPrefix=${AMQ_MULTICAST_PREFIX}</acceptor>
+          {{- $extra_args := list -}}
+          {{- range .acceptor_params }}
+          {{- $extra_args = printf "%s=%s" (toString .key) (toString .value) | append $extra_args }}
+          {{- end }}
+        <acceptor name="{{ .name }}">tcp://${BROKER_IP}:{{ .port }}?tcpSendBufferSize=1048576;tcpReceiveBufferSize=1048576;protocols={{ default $.Values.parameters.amq_protocols .amq_protocols }};useEpoll=true;amqpCredits=1000;amqpLowCredits=300;anycastPrefix=${AMQ_ANYCAST_PREFIX};multicastPrefix=${AMQ_MULTICAST_PREFIX};{{ $extra_args | join ";" }}</acceptor>
         {{- end }}
         {{- end }}
       </acceptors>
