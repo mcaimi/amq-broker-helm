@@ -46,6 +46,7 @@ nodeport:
   enabled: true
 
 passthrough_route:
+  hostname: multiplex-amq
   enabled: false
   service: multiplex
 
@@ -78,6 +79,7 @@ tls:
 parameters:
   tls_enabled: false
   jolokia_passthrough: false
+  openshift_appdomain: apps.cluster.local
   amq_protocols: "openwire,amq,stomp,mqtt,hornetq,core"
   amq_admin_role: "admin"
   amq_broker_name: "broker"
