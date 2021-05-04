@@ -125,8 +125,7 @@ admin:
   password: password
   cluster_user: cadmin
   cluster_password: cpassword
-  roles:
-    - admin
+  role: "admin"
 
 security:
   enabled: true
