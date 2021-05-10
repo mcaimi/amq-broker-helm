@@ -136,14 +136,17 @@ security:
     # Secret key entry name for Username password properties file. Override when files is provided by existing Secret.
     key: artemis-users.properties
 
+# Add more users to this configuration
+# Any users that gets assigned the .admin.role
+# role name becomes an additional administrator
 users: []
 #  - name: demouser
 #    password: "demo"
-#    roles: 
+#    roles:
 #      - user
 #  - name: anotheruser
 #    password: "demo1"
-#    roles: 
+#    roles:
 #      - user
 #
 queues:
