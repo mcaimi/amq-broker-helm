@@ -61,7 +61,7 @@ This chart handles the deployment of RedHat AMQ broker instances on both OCP and
 | security.jaasUsers.key           | Specify the key (filename) of the user/password file in the secret | `artemis-users.properties` |
 | admin.user                       | Admin user. Mandatory even if security.createSecret is `false`) | `admin` |
 | admin.password                   | Admin password. Optional. Only used if security.createSecret is `true` | `password` |
-| admin.roles                      | Array of role names to assign to admin | `[ admin ]` |
+| admin.role                       | Admin role name | `admin` |
 | users                            | Array of additional users. Only used if security.createSecret is `true` else users are expected to be defined in secret. | [] |
 | queue.defaults                   | Default values for queues parameters | [] |
 | queue.addresses                  | Array of queues to create. | [] |
