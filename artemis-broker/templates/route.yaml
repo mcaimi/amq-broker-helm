@@ -12,7 +12,11 @@ metadata:
     application: {{ $app_name }}
   name: {{ $route_name }}-console
 spec:
+  {{- if $.Values.parameters.append_ns }}
+  host: {{ $route_name }}.{{ $.Release.Namespace }}.{{ $.Values.parameters.openshift_appdomain }}
+  {{- else }}
   host: {{ $route_name }}.{{ $.Values.parameters.openshift_appdomain }}
+  {{- end }}
   to:
     kind: Service
     name: {{ $svc_name }}
@@ -40,7 +44,11 @@ metadata:
     application: {{ $app_name }}
   name: {{ $route_name }}-passthrough
 spec:
+  {{- if $.Values.parameters.append_ns }}
+  host: {{ $.Values.passthrough_route.hostname }}.{{ $.Release.Namespace }}.{{ $.Values.parameters.openshift_appdomain }}
+  {{- else }}
   host: {{ $.Values.passthrough_route.hostname }}.{{ $.Values.parameters.openshift_appdomain }}
+  {{- end }}
   to:
     kind: Service
     name: {{ $svc_name }}

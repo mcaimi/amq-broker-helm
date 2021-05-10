@@ -34,6 +34,8 @@ This chart handles the deployment of RedHat AMQ broker instances on both OCP and
 | nodeport.enabled                 | Create node port to expose AMQ to clients outside of the cluster | `30002` |
 | nodeport.port                    | Node port number used when enabled | `30002` |
 | passthrough_route.enabled        | Create a passthrough route to allow inbound TCP/SNI connections to a TLS-enabled broker | `False` |
+| passthrough_route.hostname       | Host name to use when building the route. the openshift_appdomain parameter gets appended to this value. | None |
+| parameters.append_ns             | Append the namespace string to hostnames before building route manifests. This is useful to keep the URL unique. | `False` |
 | parameters.tls_enabled           | Enable or disable TLS support for acceptors | `false` |
 | parameters.jolokia_passthrough   | Configure TLS for the jolokia console as a passthrough route or an edge terminated route if tls_enabled is set to true | `false` |
 | parameters.amq_protocols         | Protocols to configure, separated by commas. Allowed values are: `openwire`, `amqp`, `stomp`, `mqtt` and `hornetq`. | `openwire,amqp,stomp,mqtt,hornetq` |

@@ -85,6 +85,7 @@ tls:
 parameters:
   tls_enabled: false
   jolokia_passthrough: false
+  append_ns: false
   openshift_appdomain: apps.cluster.local
   amq_protocols: "openwire,amq,stomp,mqtt,hornetq,core"
   amq_admin_role: "admin"
