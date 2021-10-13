@@ -385,3 +385,9 @@ $ keytool -export -alias client -keystore client.ks -file client_cert
 $ keytool -import -alias client -keystore broker.ts -file client_cert
 ```
 
+## DISCLAIMER
+
+This chart is distributed as-is under the GPLv3 license and it's currently being developed as a private project to experiment alternative installation methods to the default AMQ Operator supported by RedHat.
+This repo and the code it contains is not by any means endorsed or supported by RedHat or by any of the software subscriptions RedHat offers.
+
+
