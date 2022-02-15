@@ -34,11 +34,12 @@ This chart handles the deployment of RedHat AMQ broker instances on both OCP and
 | nodeport.enabled                 | Create node port to expose AMQ to clients outside of the cluster | `30002` |
 | nodeport.port                    | Node port number used when enabled | `30002` |
 | passthrough_route.enabled        | Create a passthrough route to allow inbound TCP/SNI connections to a TLS-enabled broker | `False` |
+| passthrough_route.hostname       | Host name to use when building the route. the openshift_appdomain parameter gets appended to this value. | None |
+| parameters.append_ns             | Append the namespace string to hostnames before building route manifests. This is useful to keep the URL unique. | `False` |
 | parameters.tls_enabled           | Enable or disable TLS support for acceptors | `false` |
 | parameters.jolokia_passthrough   | Configure TLS for the jolokia console as a passthrough route or an edge terminated route if tls_enabled is set to true | `false` |
 | parameters.amq_protocols         | Protocols to configure, separated by commas. Allowed values are: `openwire`, `amqp`, `stomp`, `mqtt` and `hornetq`. | `openwire,amqp,stomp,mqtt,hornetq` |
 | parameters.amq_broker_name       | Broker name (TODO is this used? Same as application.name ) | `broker` |
-| parameters.amq_admin_role        | Admin role | `admin` |
 | parameters.amq_global_max_size   | Maximum amount of memory which message data may consume ( TODO: 100 gb as default is a bit high for most systems) | `"100 gb"` |
 | parameters.amq_require_login     | Determines whether or not the broker will allow anonymous access, or require login | `False` |
 | parameters.amq_extra_args        | Extra arguments for broker creation  | `` |
@@ -56,8 +57,8 @@ This chart handles the deployment of RedHat AMQ broker instances on both OCP and
 | templates.app_secret             | Template for name of a secret containing credential data such as users and passwords | See values.yaml |
 | templates.pvc_name               | Template for persistent volume name | See values.yaml |
 | security.enabled                 | Enabled security | `true` |
-| security.secrets                 | Array of names of additional secrets to mount into /opt/amq/conf  | [] |
-| security.createSecret            | Create secret with users and passwords. Disable when secrets is created outside of this chart. For example by ExternalSecret | `true` |
+| security.jaasUsers.secrets       | Array of names of additional secrets to mount into /opt/amq/conf  | [] |
+| security.jaasUsers.createSecret  | Create secret with users and passwords. Disable when secrets is created outside of this chart. For example by ExternalSecret | `true` |
 | security.jaasUsers.key           | Specify the key (filename) of the user/password file in the secret | `artemis-users.properties` |
 | admin.user                       | Admin user. Mandatory even if security.createSecret is `false`) | `admin` |
 | admin.password                   | Admin password. Optional. Only used if security.createSecret is `true` | `password` |
@@ -382,4 +383,10 @@ $ keytool -export -alias client -keystore client.ks -file client_cert
 ```
 $ keytool -import -alias client -keystore broker.ts -file client_cert
 ```
+
+## DISCLAIMER
+
+This chart is distributed as-is under the GPLv3 license and it's currently being developed as a private project to experiment alternative installation methods to the default AMQ Operator supported by RedHat.
+This repo and the code it contains is not by any means endorsed or supported by RedHat or by any of the software subscriptions RedHat offers.
+
 
