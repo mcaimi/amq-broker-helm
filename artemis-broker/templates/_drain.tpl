@@ -50,7 +50,7 @@ statefulsets.kubernetes.io/drainer-pod-template: |
             },
             {
               "name": "AMQ_ROLE",
-              "value": "{{ .Values.parameters.amq_admin_role }}"
+              "value": "{{ .Values.admin.role }}"
             },
             {
               "name": "AMQ_NAME",

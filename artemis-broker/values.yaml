@@ -85,9 +85,9 @@ tls:
 parameters:
   tls_enabled: false
   jolokia_passthrough: false
+  append_ns: false
   openshift_appdomain: apps.cluster.local
   amq_protocols: "openwire,amq,stomp,mqtt,hornetq,core"
-  amq_admin_role: "admin"
   amq_broker_name: "broker"
   amq_global_max_size: "200 mb"
   amq_require_login: False
@@ -130,11 +130,30 @@ admin:
 security:
   enabled: true
   # Names of additional secrets to mount into configuration folder.
-  secrets: []
-  createSecret: true
   jaasUsers:
+    enabled: true
+    flag: "sufficient"
     # Secret key entry name for Username password properties file. Override when files is provided by existing Secret.
+    secrets: []
+    createSecret: true
     key: artemis-users.properties
+  ldap:
+    enabled: true
+    flag: "sufficient"
+    recurse: true
+    protocol: ldap
+    host: openldap
+    port: 389
+    binding:
+      user: 'uid=admin,ou=Users,dc=example,dc=com'
+      password: 'password'
+    users:
+      base: 'ou=Users,dc=example,dc=com'
+      searchMatching: '(uid={0})'
+    roles:
+      base: 'ou=Groups,dc=example,dc=com'
+      name: 'cn'
+      searchMatching: '(uniqueMember={0})'
 
 # Add more users to this configuration
 # Any users that gets assigned the .admin.role

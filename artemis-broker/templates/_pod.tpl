@@ -40,7 +40,7 @@ containers:
         name: {{ tpl .Values.templates.app_secret . }}
         key: AMQ_PASSWORD
   - name: AMQ_ROLE
-    value: "{{ .Values.parameters.amq_admin_role }}"
+    value: "{{ .Values.admin.role }}"
   - name: AMQ_NAME
     value: "{{ .Values.parameters.amq_broker_name }}"
   - name: AMQ_TRANSPORTS
@@ -166,7 +166,7 @@ volumes:
       sources:
         - configMap:
             name: {{ tpl .Values.templates.config_cm . }}
-        {{- range .Values.security.secrets }}
+        {{- range .Values.security.jaasUsers.secrets }}
         - secret:
             name: {{ . }}
         {{- end }}
