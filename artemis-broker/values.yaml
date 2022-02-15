@@ -88,7 +88,6 @@ parameters:
   append_ns: false
   openshift_appdomain: apps.cluster.local
   amq_protocols: "openwire,amq,stomp,mqtt,hornetq,core"
-  amq_admin_role: "admin"
   amq_broker_name: "broker"
   amq_global_max_size: "200 mb"
   amq_require_login: False

@@ -40,7 +40,6 @@ This chart handles the deployment of RedHat AMQ broker instances on both OCP and
 | parameters.jolokia_passthrough   | Configure TLS for the jolokia console as a passthrough route or an edge terminated route if tls_enabled is set to true | `false` |
 | parameters.amq_protocols         | Protocols to configure, separated by commas. Allowed values are: `openwire`, `amqp`, `stomp`, `mqtt` and `hornetq`. | `openwire,amqp,stomp,mqtt,hornetq` |
 | parameters.amq_broker_name       | Broker name (TODO is this used? Same as application.name ) | `broker` |
-| parameters.amq_admin_role        | Admin role | `admin` |
 | parameters.amq_global_max_size   | Maximum amount of memory which message data may consume ( TODO: 100 gb as default is a bit high for most systems) | `"100 gb"` |
 | parameters.amq_require_login     | Determines whether or not the broker will allow anonymous access, or require login | `False` |
 | parameters.amq_extra_args        | Extra arguments for broker creation  | `` |
