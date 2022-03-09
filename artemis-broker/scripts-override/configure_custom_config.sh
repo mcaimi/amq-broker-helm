@@ -4,7 +4,7 @@ set -e
 INSTANCE_DIR=$1
 DISABLER_TAG="<!-- Remove this tag to enable custom configuration -->"
 
-declare -a CONFIG_FILES=("BROKER_XML" "LOGGING_PROPERTIES")
+declare -a CONFIG_FILES=("BOOTSTRAP_XML" "BROKER_XML" "LOGGING_PROPERTIES")
 
 function swapVars() {
   # Requires bash v4+
