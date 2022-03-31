@@ -49,7 +49,7 @@ containers:
   - name: AB_JOLOKIA_HTTPS
     value: "{{ .Values.parameters.jolokia_passthrough }}"
   - name: AMQ_KEYSTORE_TRUSTSTORE_DIR
-    value: /etc/amq-secret-volume
+    value: {{ .Values.tls.secret_mount_path }}
   - name: AMQ_TRUSTSTORE
     value: {{ .Values.tls.truststore }}
   - name: AMQ_TRUSTSTORE_PASSWORD
