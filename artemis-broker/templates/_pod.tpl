@@ -85,11 +85,6 @@ containers:
     value: {{ .Values.metrics.enabled | quote }}
   - name: AMQ_JOURNAL_TYPE
     value: "{{ .Values.parameters.amq_journal_type }}"
-  - name: BROKER_XML
-    valueFrom:
-      configMapKeyRef:
-        name: {{ tpl .Values.templates.config_cm . }}
-        key: broker.xml
   image: {{ tpl .Values.templates.broker_image . }}
   {{- with .Values.resources }}
   resources:
