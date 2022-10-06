@@ -24,6 +24,8 @@ containers:
       secretKeyRef:
         name: {{ tpl .Values.templates.app_secret . }}
         key: AMQ_CLUSTER_PASSWORD
+  - name: OPENSHIFT_DNS_PING_SERVICE_PORT
+    value: "{{ .Values.ping_service.jgroups.bind_port }}"
   - name: POD_NAMESPACE
     valueFrom:
       fieldRef:
