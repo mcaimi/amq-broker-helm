@@ -112,7 +112,7 @@ statefulsets.kubernetes.io/drainer-pod-template: |
             },
             {
               "name": "OPENSHIFT_DNS_PING_SERVICE_PORT",
-              "value": "{{ .Values.ping_service.port}}"
+              "value": "{{ .Values.ping_service.jgroups.bind_port }}"
             }
           ],
           "image": "{{ tpl .Values.templates.broker_image .}}",

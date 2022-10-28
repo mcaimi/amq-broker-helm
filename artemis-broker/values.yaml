@@ -8,7 +8,7 @@ platform: openshift
 
 application:
   name: amq-broker-artemis
-  amq_broker_version: 7.8
+  amq_broker_version: 7.10
   amq_broker_image: registry.redhat.io/amq7/amq-broker
   pullPolicy: IfNotPresent
   persistent: true
@@ -45,6 +45,8 @@ service:
 ping_service:
   name: "{{ .Values.application.name }}-ping-svc"
   port: 8888
+  jgroups:
+    bind_port: 7800
 
 nodeport:
   port: 30003
