@@ -1,7 +1,5 @@
 #!/bin/bash
 
-source /usr/local/dynamic-resources/dynamic_resources.sh
-
 if [ "${SCRIPT_DEBUG}" = "true" ] ; then
   set -x
   echo "Script debugging is enabled, allowing bash commands and their arguments to be printed as they are executed"
@@ -10,14 +8,40 @@ fi
 
 export BROKER_IP=`hostname -f`
 CONFIG_TEMPLATES=/config_templates
-#Set the memory options via adjust_java_options from dynamic_resources
-#see https://developers.redhat.com/blog/2017/04/04/openjdk-and-containers/
-JAVA_OPTS="$(adjust_java_options ${JAVA_OPTS})"
 
 #GC Option conflicts with the one already configured.
 echo "Removing provided -XX:+UseParallelOldGC in favour of artemis.profile provided option"
 JAVA_OPTS=$(echo $JAVA_OPTS | sed -e "s/-XX:+UseParallelOldGC/ /")
+PLATFORM=`uname -m`
+echo "Platform is ${PLATFORM}"
+if [ "${PLATFORM}" = "s390x" ] ; then
+  #GC Option found to be a problem on s390x
+  echo "Removing -XX:+UseG1GC as per recommendation to use default GC"
+  JAVA_OPTS=$(echo $JAVA_OPTS | sed -e "s/-XX:+UseG1GC/ /")
+  #JDK11 related warnings removal
+  echo "Adding -Dcom.sun.xml.bind.v2.bytecode.ClassTailor.noOptimize=true as per ENTMQBR-1932"
+  JAVA_OPTS="-Dcom.sun.xml.bind.v2.bytecode.ClassTailor.noOptimize=true ${JAVA_OPTS}"
+fi
 JAVA_OPTS="-Djava.net.preferIPv4Stack=true ${JAVA_OPTS}"
+
+if [ "$AMQ_ENABLE_JOLOKIA_AGENT" = "true" ]; then
+  echo "Define jolokia jvm agent options"
+
+  if [ -z ${AMQ_JOLOKIA_AGENT_OPTS} ]; then
+    if [ -f "/var/run/secrets/kubernetes.io/serviceaccount/service-ca.crt" ]; then
+      AMQ_JOLOKIA_AGENT_OPTS='realm=activemq,caCert=/var/run/secrets/kubernetes.io/serviceaccount/service-ca.crt,clientPrincipal.1=cn=system:master-proxy,clientPrincipal.2=cn=hawtio-online.hawtio.svc,clientPrincipal.3=cn=fuse-console.fuse.svc'
+    else
+      AMQ_JOLOKIA_AGENT_OPTS='realm=activemq,clientPrincipal.1=cn=system:master-proxy,clientPrincipal.2=cn=hawtio-online.hawtio.svc,clientPrincipal.3=cn=fuse-console.fuse.svc'
+    fi
+  fi
+
+  export AB_JOLOKIA_USER=$AMQ_JOLOKIA_AGENT_USER
+  export AB_JOLOKIA_PASSWORD_RANDOM=false
+  export AB_JOLOKIA_PASSWORD=$AMQ_JOLOKIA_AGENT_PASSWORD
+  export AB_JOLOKIA_OPTS="${AMQ_JOLOKIA_AGENT_OPTS}"
+  JOLOKIA_OPTS="$(/opt/jolokia/jolokia-opts)"
+  echo "JOLOKIA_OPTS: $JOLOKIA_OPTS"
+fi
 
 function sslPartial() {
   [ -n "$AMQ_KEYSTORE_TRUSTSTORE_DIR" -o -n "$AMQ_KEYSTORE" -o -n "$AMQ_TRUSTSTORE" -o -n "$AMQ_KEYSTORE_PASSWORD" -o -n "$AMQ_TRUSTSTORE_PASSWORD" ]
@@ -257,10 +281,49 @@ function configureJAVA_ARGSMemory() {
   sed -i "s/\-Xms[0-9]*[mMgG] \-Xmx[0-9]*[mMgG] \-Dhawtio/\ -Dhawtio/g" ${instanceDir}/etc/artemis.profile
 }
 
+function configureJolokiaJVMAgent() {
+  instanceDir=$1
+  if [ "$AMQ_ENABLE_JOLOKIA_AGENT" = "true" ]; then
+    echo "Configure jolokia jvm agent"
+    echo "JOLOKIA_OPTS: $JOLOKIA_OPTS"
+    echo '' >> ${instanceDir}/etc/artemis.profile
+    echo "if [ \"\$1\" = \"run\" ]; then JAVA_ARGS=\"\$JAVA_ARGS $JOLOKIA_OPTS\"; fi" >> ${instanceDir}/etc/artemis.profile
+    echo '' >> ${instanceDir}/etc/artemis.profile
+  fi
+}
+
 function injectMetricsPlugin() {
   instanceDir=$1
   echo "Adding artemis metrics plugin"
   sed -i "s/^\([[:blank:]]*\)<\\/core>/\1\1<metrics-plugin class-name=\"org.apache.activemq.artemis.core.server.metrics.plugins.ArtemisPrometheusMetricsPlugin\"\\/>\\n\1<\\/core>/" $instanceDir/etc/broker.xml
+
+  if ! grep -q 'metrics' $instanceDir/etc/bootstrap.xml; then
+    sed -i 's~</binding>~<app url="metrics" war="metrics.war"/></binding>~' $instanceDir/etc/bootstrap.xml
+  fi
+
+}
+
+function checkBeforeRun() {
+  instanceDir=$1
+  if [ "$AMQ_ENABLE_METRICS_PLUGIN" = "true" ]; then
+    pluginStr="com.redhat.amq.broker.core.server.metrics.plugins.ArtemisPrometheusMetricsPlugin"
+    grep -q "$pluginStr" ${instanceDir}/etc/broker.xml
+    result=$?
+    if [[ $result == 0 ]]; then
+      echo "The Prometheus plugin already configured."
+    else
+      echo "Need to inject Prometheus plugin"
+      injectMetricsPlugin ${instanceDir}
+    fi
+  fi
+
+  if [[ "${JAVA_ARGS_APPEND}" == *"-Dlog4j2.configurationFile"* ]]; then
+    echo "There is a custom logger configuration defined in JAVA_ARGS_APPEND: ${JAVA_ARGS_APPEND}"
+  else
+    echo "Using default logging configuration(console only)"
+    defaultLoggingConfigFile=${instanceDir}/etc/log4j2.properties
+    sed -i "s/rootLogger = INFO, console, log_file/rootLogger = INFO, console/g" $defaultLoggingConfigFile
+  fi
 }
 
 function configure() {
@@ -347,6 +410,7 @@ function configure() {
     appendConnectorsFromEnv ${instanceDir}
     configureLogging ${instanceDir}
     configureJAVA_ARGSMemory ${instanceDir}
+    configureJolokiaJVMAgent ${instanceDir}
 
     if [ "$AMQ_ENABLE_METRICS_PLUGIN" = "true" ]; then
       echo "Enable artemis metrics plugin"
@@ -370,7 +434,8 @@ function runServer() {
   configure $instanceDir
 
   if [ "$1" != "nostart" ]; then
-    echo "Running Broker"
+    echo "Running Broker in ${instanceDir}"
+    checkBeforeRun ${instanceDir}
     exec ${instanceDir}/bin/artemis run
   fi
 }

@@ -29,7 +29,9 @@ function swapVars() {
 for config_file in ${CONFIG_FILES[@]};
 do
   # Swap env vars into configuration file
-  echo "Patching Custom Configuration file '$config_file'"
-  swapVars $INSTANCE_DIR/etc/$config_file
+  if [[ -e $INSTANCE_DIR/etc/$config_file ]]; then
+    echo "Patching Custom Configuration file '$config_file'"
+    swapVars $INSTANCE_DIR/etc/$config_file
+  fi
 done
 
