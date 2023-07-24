@@ -190,7 +190,7 @@
         <jvm-memory>{{ .Values.metrics.jvm_memory }}</jvm-memory>
         <jvm-gc>{{ .Values.metrics.jvm_gc }}</jvm-gc>
         <jvm-threads>{{ .Values.metrics.jvm_threads }}</jvm-threads>
-        <plugin class-name="org.apache.activemq.artemis.core.server.metrics.plugins.ArtemisPrometheusMetricsPlugin"/>
+        <plugin class-name="com.redhat.amq.broker.core.server.metrics.plugins.ArtemisPrometheusMetricsPlugin"/>
       </metrics>
       {{- end }}
       {{- if .Values.clustered }}
