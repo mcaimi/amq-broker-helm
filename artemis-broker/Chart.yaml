@@ -1,6 +1,6 @@
 apiVersion: v2
 name: artemis-broker
-version: 7.8
+version: 7.11
 description: An unified Helm Chart that deploys an Artemis MQ Broker with optional SSL support and Optional Disk Persistence. Clustered setups are also supported.
 type: application
 keywords:
